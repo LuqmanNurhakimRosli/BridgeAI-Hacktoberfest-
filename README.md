@@ -56,6 +56,7 @@ src/data/                  synthetic demo catalog (labelled synthetic_demo)
 
 Principle: the backend decides scores, IDs, eligibility, stage changes and KPIs. Gemma extracts, explains and drafts. Everything it returns is validated, and the guards in `src/lib/ai/postvalidate.ts` run in code, not in prompts: unknown IDs are dropped, contact details are removed, a POC is always `proposed`, and outcomes stated as done are rejected.
 
+- Frontend handover (start here if you build the UI): [docs/frontend-handover.md](docs/frontend-handover.md)
 - API reference and frontend rules: [docs/api-contract.md](docs/api-contract.md)
 - AI evaluation results and open issues: [docs/ai-evaluation.md](docs/ai-evaluation.md)
 - Integration plan and decisions: [docs/integration-plan.md](docs/integration-plan.md)
