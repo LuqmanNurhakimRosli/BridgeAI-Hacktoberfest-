@@ -1,0 +1,83 @@
+{
+  "matches": [
+    {
+      "demand_id": "DEMO-CH-001",
+      "score": 75,
+      "score_breakdown": {
+        "sector": 30,
+        "must_have": 15,
+        "geography": 15,
+        "stage": 15,
+        "readiness": 0
+      },
+      "reasons": [
+        "Sector match",
+        "Self-declared coverage: crop disease detection, mobile workflow",
+        "Target country matches",
+        "Stage is compatible"
+      ],
+      "unknowns": [
+        "No documented pilot evidence provided"
+      ],
+      "hard_eligibility": "needs_verification",
+      "withheld_reasons": [],
+      "ai_analysis": {
+        "demand_id": "DEMO-CH-001",
+        "why_match": "AgriSmart's phone-based leaf-disease detection addresses the crop disease detection requirement in this synthetic challenge.",
+        "fit_gaps": [
+          "Confirm offline operation (nice-to-have).",
+          "Field-test evidence is not provided."
+        ],
+        "next_action": "Prepare a short discovery questionnaire before proposing a pilot.",
+        "evidence_for_fit": [
+          "Founder states phone-based disease detection",
+          "Stated target country is Indonesia"
+        ],
+        "missing_evidence": [
+          "No field-test results provided",
+          "Offline operation not confirmed"
+        ]
+      }
+    },
+    {
+      "demand_id": "DEMO-CH-002",
+      "score": 15,
+      "score_breakdown": {
+        "sector": 0,
+        "must_have": 0,
+        "geography": 0,
+        "stage": 15,
+        "readiness": 0
+      },
+      "reasons": [
+        "Stage is compatible"
+      ],
+      "unknowns": [
+        "Not evidenced: cash-flow forecasting",
+        "Not evidenced: data privacy controls",
+        "No documented pilot evidence provided"
+      ],
+      "hard_eligibility": "needs_verification",
+      "withheld_reasons": [],
+      "ai_analysis": null
+    }
+  ],
+  "withheld": [
+    {
+      "demand_id": "DEMO-VC-001",
+      "withheld_reasons": [
+        "goal_mismatch"
+      ]
+    }
+  ],
+  "ai_status": "ok",
+  "meta": {
+    "source": "fixture",
+    "model": "google/gemma-4-26b-a4b-it",
+    "provider": null,
+    "prompt_version": "matches-v1",
+    "latency_ms": 0,
+    "repaired": false
+  },
+  "data_notice": "Includes synthetic demo records. Scores are rule-based compatibility only, not funding or success probability."
+}

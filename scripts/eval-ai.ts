@@ -8,7 +8,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractStartupProfile } from '../src/lib/ai/passport';
-import { explainMatches } from '../src/lib/ai/reasoning';
+import { explainDemandsForStartup } from '../src/lib/ai/reasoning';
+import { toRequestProfile } from '../src/lib/contract';
 import { generatePocPlan } from '../src/lib/ai/poc';
 import { draftOutreach } from '../src/lib/ai/outreach';
 import { suggestNextAction, type RecordedEvent } from '../src/lib/ai/next-action';
@@ -29,8 +30,9 @@ const DEMAND = {
   must_have: ['crop disease detection', 'mobile workflow'], nice_to_have: ['offline-first', 'multi-language UI'],
   stages: ['Pre-seed', 'Seed', 'Series A'], goals: ['Pilot Partnership', 'Market Expansion'], data_status: 'synthetic_demo',
 };
-const AGRISMART = (load<{ profile: Record<string, unknown> }>('src/lib/ai/fixtures/passport-agrismart.json')).profile;
-const POC_FIXTURE = load<Record<string, unknown>>('src/lib/ai/fixtures/poc-75day-demo.json');
+// Fixtures are generated from the real handlers (npm run fixtures), so they match the public contract.
+const AGRISMART = toRequestProfile(load<{ profile: Parameters<typeof toRequestProfile>[0] }>('src/lib/ai/fixtures/analyze-agrismart.json').profile);
+const POC_FIXTURE = load<{ plan: Record<string, unknown> }>('src/lib/ai/fixtures/poc-agrismart.json').plan;
 
 const report: Record<string, unknown> = {
   generated_at: new Date().toISOString(),
@@ -117,15 +119,17 @@ async function main() {
     const rows: Array<Record<string, unknown>> = [];
     let idOk = 0, claimFree = 0, errors = 0, missingEvidenceOk = 0, missingEvidenceTotal = 0;
     for (const c of cases) {
-      const startup = { id: `S-${c.id}`, description: c.startup };
+      // The production path: one startup profile against a backend-scored demand record.
+      const profile = { ...AGRISMART, description: c.startup };
+      const candidate = {
+        demand_id: DEMAND.id, title: DEMAND.title, industry: DEMAND.industry, country: DEMAND.country, problem: DEMAND.problem,
+        must_have: DEMAND.must_have, nice_to_have: DEMAND.nice_to_have, data_status: DEMAND.data_status, score: 60, unknowns: [],
+      };
       try {
-        const out = await explainMatches({
-          demand: DEMAND, demandId: DEMAND.id,
-          candidates: [{ startupId: startup.id, demandId: DEMAND.id, score: 60, startup, eligibility: { passed: true } }],
-        });
+        const out = await explainDemandsForStartup({ profile, candidates: [candidate] });
         track(out.meta.latency_ms);
-        const ex = out.results[0].explanation;
-        const idsOk = out.results.every((r) => r.startup_id === startup.id && r.score === 60);
+        const ex = out.explanations[0] ?? null;
+        const idsOk = out.explanations.every((e) => e.demand_id === DEMAND.id) && out.missing_explanations.length === 0;
         if (idsOk) idOk++;
         const text = JSON.stringify(ex ?? {});
         const overclaims = findOverclaims(text);
@@ -141,7 +145,7 @@ async function main() {
       }
     }
     sections.reverse_match = {
-      cases: cases.length, allowed_id_and_score_rate_pct: pct(idOk, cases.length),
+      cases: cases.length, allowed_id_rate_pct: pct(idOk, cases.length),
       claim_free_rate_pct: pct(claimFree, cases.length), missing_evidence_flagged_pct: pct(missingEvidenceOk, missingEvidenceTotal),
       call_errors: errors, rows, note: 'expect_flag labels need human review; automated checks cover IDs, scores, overclaims and contacts only.',
     };

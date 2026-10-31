@@ -1,0 +1,33 @@
+{
+  "profile": {
+    "startup_name": "AgriSmart",
+    "description": "We are AgriSmart, a Malaysian seed-stage startup building phone-based AI leaf-disease detection. We need an Indonesian company with a real field-pilot problem to solve.",
+    "industry": "AgriTech",
+    "home_country": "Malaysia",
+    "target_country": "Indonesia",
+    "stage": "Seed",
+    "product": "Phone-based AI leaf-disease detection",
+    "primary_goal": "Pilot Partnership",
+    "needs": [
+      "An Indonesian company with a field-pilot problem"
+    ],
+    "capability_tags": [
+      "crop disease detection",
+      "mobile workflow"
+    ],
+    "missing_fields": [],
+    "confidence_notes": [
+      "Stage \"seed-stage\" stated by founder",
+      "Target country stated by founder"
+    ]
+  },
+  "needs_founder_confirmation": true,
+  "meta": {
+    "source": "fixture",
+    "model": "google/gemma-4-26b-a4b-it",
+    "provider": null,
+    "prompt_version": "passport-v4",
+    "latency_ms": 0,
+    "repaired": false
+  }
+}
