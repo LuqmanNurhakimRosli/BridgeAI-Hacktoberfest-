@@ -1,7 +1,7 @@
 // Code-enforced guardrails applied after schema validation. These are not prompt instructions:
 // the backend decides IDs, status, scores and whether a claim is allowed to stand.
 
-import { SUPPORTED_COUNTRIES, type MatchExplanation, type StartupProfileOutput, type PocPlanOutput } from './schemas';
+import { SUPPORTED_COUNTRIES, type DemandExplanation, type MatchExplanation, type StartupProfileOutput } from './schemas';
 
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 const URL_RE = /\bhttps?:\/\/[^\s)"']+|\bwww\.[^\s)"']+/gi;
@@ -140,6 +140,26 @@ export function groundExplanations(
     .filter((e): e is MatchExplanation => Boolean(e));
 }
 
+// P0 direction: keeps only explanations for supplied demand IDs, one per ID, in the supplied order.
+export function groundDemandExplanations(
+  explanations: DemandExplanation[],
+  allowedDemandIds: string[],
+  report: GuardReport,
+): DemandExplanation[] {
+  const allowed = new Set(allowedDemandIds);
+  const seen = new Set<string>();
+  const kept = new Map<string, DemandExplanation>();
+  for (const e of explanations) {
+    if (!allowed.has(e.demand_id) || seen.has(e.demand_id)) {
+      report.droppedUnknownIds++;
+      continue;
+    }
+    seen.add(e.demand_id);
+    kept.set(e.demand_id, e);
+  }
+  return allowedDemandIds.map((id) => kept.get(id)).filter((e): e is DemandExplanation => Boolean(e));
+}
+
 // Claims that must not appear as facts in a proposed plan. Only completed-status wording is matched,
 // so drafting phrases such as "to be agreed" or "subject to agreement" stay allowed.
 // Negated uses ("not signed", "no agreement") are also allowed.
@@ -171,7 +191,10 @@ const DISCOVERY_RE = /discovery|introductory|first meeting|exploratory call/i;
 const CONSENT_RE = /consent|data[- ]access|data sharing|permission/i;
 
 // Applies the POC rules that code can check. Returns the plan with status forced to 'proposed'.
-export function finalizePocPlan(plan: PocPlanOutput, report: GuardReport): PocPlanOutput & { status: 'proposed' } {
+export function finalizePocPlan<T extends { milestones: Array<{ day: number; action: string }> }>(
+  plan: T,
+  report: GuardReport,
+): T & { status: 'proposed' } {
   const milestones = [...plan.milestones].sort((a, b) => a.day - b.day);
   const hasDiscovery = milestones.some((m) => DISCOVERY_RE.test(m.action));
   const hasConsent = milestones.some((m) => CONSENT_RE.test(m.action));

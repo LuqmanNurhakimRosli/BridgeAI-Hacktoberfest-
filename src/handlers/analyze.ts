@@ -1,22 +1,15 @@
-import { completeJson, DEFAULT_MODEL, openRouterClient, type ModelClient } from '../lib/model';
-import { passportOutputSchema, analyzeRequestSchema } from '../lib/schemas';
-import { PASSPORT_PROMPT_VERSION, SYSTEM_PROMPT, passportTask } from '../lib/prompts';
+import { analyzeRequestSchema } from '../lib/schemas';
 import { readJson } from '../lib/api';
+import { extractStartupProfile, type TaskDeps } from '../lib/ai';
+import { publicMeta, withAi } from './ai-boundary';
 
 // POST /api/analyze: founder text -> editable Startup Passport. Gemma does extraction only.
-export async function handleAnalyze(req: Request, model: ModelClient = openRouterClient()): Promise<Response> {
+export async function handleAnalyze(req: Request, deps: TaskDeps = {}): Promise<Response> {
   const body = analyzeRequestSchema.parse(await readJson(req));
-  const profile = await completeJson(
-    model,
-    [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: passportTask(body.description, body.locale) },
-    ],
-    passportOutputSchema,
-    1000,
-  );
+  const out = await withAi(() => extractStartupProfile({ description: body.description, locale: body.locale }, deps));
   return Response.json({
-    profile,
-    meta: { model: process.env.OPENROUTER_MODEL || DEFAULT_MODEL, prompt_version: PASSPORT_PROMPT_VERSION },
+    profile: out.profile,
+    needs_founder_confirmation: out.needs_founder_confirmation,
+    meta: publicMeta(out.meta),
   });
 }

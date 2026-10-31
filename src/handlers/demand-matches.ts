@@ -1,15 +1,17 @@
 import { AppError } from '../lib/errors';
 import { demandById, demandBriefs } from '../lib/catalog';
 import { missingGateFields, rankDemands, type Assessment } from '../lib/demand-matcher';
-import { completeJson, openRouterClient, type ModelClient } from '../lib/model';
-import { matchExplanationOutputSchema, matchesRequestSchema } from '../lib/schemas';
-import { NOTICE_SYNTHETIC, SYSTEM_PROMPT, matchTask } from '../lib/prompts';
+import { matchesRequestSchema } from '../lib/schemas';
+import { NOTICE_SYNTHETIC } from '../lib/constants';
 import { readJson } from '../lib/api';
+import { explainDemandsForStartup, type TaskDeps } from '../lib/ai';
+import { publicMeta, withAi } from './ai-boundary';
 
 type AiStatus = 'ok' | 'unavailable' | 'invalid_output' | 'not_run';
+type Explanation = Awaited<ReturnType<typeof explainDemandsForStartup>>['explanations'][number];
 
 // POST /api/demand/matches. Scores are computed before any model call and never change.
-export async function handleDemandMatches(req: Request, model: ModelClient = openRouterClient()): Promise<Response> {
+export async function handleDemandMatches(req: Request, deps: TaskDeps = {}): Promise<Response> {
   const body = matchesRequestSchema.parse(await readJson(req));
   const profile = body.startup_profile;
 
@@ -26,25 +28,18 @@ export async function handleDemandMatches(req: Request, model: ModelClient = ope
   const eligible = ranked.filter((a) => a.withheld_reasons.length === 0).slice(0, 5);
   const withheld = ranked.filter((a) => a.withheld_reasons.length > 0);
 
-  const explanations = new Map<string, { why_match: string; fit_gaps: string[]; next_action: string }>();
+  const explanations = new Map<string, Explanation>();
   let ai_status: AiStatus = 'not_run';
+  let meta: ReturnType<typeof publicMeta> | null = null;
   if (eligible.length) {
     try {
-      const out = await completeJson(
-        model,
-        [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: matchTask(profile, candidatesForPrompt(eligible)) },
-        ],
-        matchExplanationOutputSchema,
-        900,
+      // The AI layer drops any demand ID the model invented or that was not a candidate.
+      const out = await withAi(() =>
+        explainDemandsForStartup({ profile, candidates: candidatesForPrompt(eligible) }, deps),
       );
       ai_status = 'ok';
-      const allowed = new Set(eligible.map((a) => a.demand_id));
-      for (const e of out.explanations) {
-        // Drop any ID the model invented or that was not a candidate.
-        if (allowed.has(e.demand_id) && !explanations.has(e.demand_id)) explanations.set(e.demand_id, e);
-      }
+      meta = publicMeta(out.meta);
+      for (const e of out.explanations) explanations.set(e.demand_id, e);
     } catch (err) {
       if (!(err instanceof AppError)) throw err;
       ai_status = err.code === 'INVALID_MODEL_OUTPUT' ? 'invalid_output' : 'unavailable';
@@ -58,6 +53,7 @@ export async function handleDemandMatches(req: Request, model: ModelClient = ope
     })),
     withheld: withheld.map(({ demand_id, withheld_reasons }) => ({ demand_id, withheld_reasons })),
     ai_status,
+    meta,
     data_notice: NOTICE_SYNTHETIC,
   });
 }

@@ -2,7 +2,7 @@
 
 import { AiError } from './errors';
 import { runTask, type TaskDeps } from './task';
-import { passportPrompt, PROMPT_VERSIONS } from './prompt-templates';
+import { passportPrompt, PROMPT_VERSIONS, type Locale } from './prompt-templates';
 import { StartupProfileSchema, GOALS, type StartupProfileOutput } from './schemas';
 import { newReport, normalizeProfile, sanitizeStrings, scrubAllContacts } from './postvalidate';
 
@@ -10,6 +10,7 @@ export const MAX_DESCRIPTION_CHARS = 3000;
 
 export interface PassportInput {
   description: string;
+  locale?: Locale;
   country?: string;
   goal?: (typeof GOALS)[number];
 }

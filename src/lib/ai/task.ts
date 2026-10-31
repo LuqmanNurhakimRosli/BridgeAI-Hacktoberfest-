@@ -3,13 +3,19 @@
 
 import type { ZodType } from 'zod';
 import { callGemma, type ChatMessage, type GemmaResult } from './call-gemma';
+import type { AiConfig } from './config';
 import { GLOBAL_SYSTEM } from './prompt-templates';
 import { generateValidated } from './json-output';
 
 export type LlmFn = (messages: ChatMessage[], opts: { maxTokens: number; temperature?: number }) => Promise<GemmaResult>;
 
+// Everything a service needs from outside. Tests inject `llm` for fast guard tests,
+// or `fetchImpl` to exercise the real transport (retries, error mapping) without a network.
 export interface TaskDeps {
   llm?: LlmFn;
+  fetchImpl?: typeof fetch;
+  config?: AiConfig;
+  sleep?: (ms: number) => Promise<void>;
 }
 
 export interface AiMeta {
@@ -23,8 +29,18 @@ export interface AiMeta {
   request_id: string;
 }
 
-const defaultLlm: LlmFn = (messages, opts) =>
-  callGemma({ messages, maxTokens: opts.maxTokens, temperature: opts.temperature });
+function makeLlm(deps?: TaskDeps): LlmFn {
+  if (deps?.llm) return deps.llm;
+  return (messages, opts) =>
+    callGemma({
+      messages,
+      maxTokens: opts.maxTokens,
+      temperature: opts.temperature,
+      fetchImpl: deps?.fetchImpl,
+      config: deps?.config,
+      sleep: deps?.sleep,
+    });
+}
 
 export async function runTask<T>(args: {
   schema: ZodType<T>;
@@ -34,7 +50,7 @@ export async function runTask<T>(args: {
   temperature: number;
   deps?: TaskDeps;
 }): Promise<{ data: T; meta: AiMeta }> {
-  const llm = args.deps?.llm ?? defaultLlm;
+  const llm = makeLlm(args.deps);
   let lastLatency = 0;
   let lastModel = '';
   let lastProvider: string | null = null;

@@ -3,18 +3,20 @@
 import { AiError } from './errors';
 import { runTask, type TaskDeps } from './task';
 import { pocPrompt, PROMPT_VERSIONS } from './prompt-templates';
-import { PocPlanSchema, type PocPlanOutput } from './schemas';
+import { makePocPlanSchema, type PocPlanOutput } from './schemas';
 import { findOverclaims, finalizePocPlan, newReport, sanitizeStrings, type GuardReport } from './postvalidate';
 
 export const ALLOWED_POC_DAYS = { min: 60, max: 90, default: 75 } as const;
 
 // Overclaims make the output invalid, which triggers the one repair call.
-const PocPlanChecked = PocPlanSchema.superRefine((plan, ctx) => {
-  const hits = findOverclaims(JSON.stringify(plan));
-  if (hits.length > 0) {
-    ctx.addIssue({ code: 'custom', message: `states an unconfirmed outcome as fact: ${hits.join(', ')}` });
-  }
-});
+export function makePocPlanChecked(durationDays: number) {
+  return makePocPlanSchema(durationDays).superRefine((plan, ctx) => {
+    const hits = findOverclaims(JSON.stringify(plan));
+    if (hits.length > 0) {
+      ctx.addIssue({ code: 'custom', message: `states an unconfirmed outcome as fact: ${hits.join(', ')}` });
+    }
+  });
+}
 
 export async function generatePocPlan(
   input: { profile: unknown; demand: unknown; durationDays?: number; sourceText?: string },
@@ -34,7 +36,7 @@ export async function generatePocPlan(
   const report: GuardReport = newReport();
 
   const { data, meta } = await runTask<PocPlanOutput>({
-    schema: PocPlanChecked,
+    schema: makePocPlanChecked(durationDays),
     user,
     promptVersion: PROMPT_VERSIONS.poc,
     maxTokens: 1800,
@@ -43,16 +45,14 @@ export async function generatePocPlan(
   });
 
   const cleaned = sanitizeStrings(data, sourceText, report) as PocPlanOutput;
-  // The duration is set by the caller, not by the model.
-  const plan = finalizePocPlan({ ...cleaned, proposed_duration_days: durationDays }, report);
+  const finalized = finalizePocPlan(cleaned, report);
 
   return {
-    plan,
+    // The duration is set by the caller and the status by the server, never by the model.
+    plan: { ...finalized, proposed_duration_days: durationDays, status: 'proposed' as const },
     status: 'proposed' as const,
     disclaimer: 'Proposed draft for discussion. Not agreed, not signed, not funded.',
     guard: report,
     meta: { ...meta, prompt_version: PROMPT_VERSIONS.poc },
   };
 }
-
-export { PocPlanChecked };

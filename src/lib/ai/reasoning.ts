@@ -4,11 +4,43 @@
 import { z } from 'zod';
 import { AiError } from './errors';
 import { runTask, type TaskDeps } from './task';
-import { reasoningPrompt, PROMPT_VERSIONS } from './prompt-templates';
-import { MatchExplanationSchema, type MatchExplanation } from './schemas';
-import { groundExplanations, newReport, sanitizeStrings, type GuardReport } from './postvalidate';
+import { demandMatchPrompt, reasoningPrompt, PROMPT_VERSIONS } from './prompt-templates';
+import { DemandExplanationsSchema, MatchExplanationSchema, type DemandExplanation, type MatchExplanation } from './schemas';
+import { groundDemandExplanations, groundExplanations, newReport, sanitizeStrings, type GuardReport } from './postvalidate';
 
 export const MAX_CANDIDATES = 5;
+
+// P0 direction: one confirmed startup profile against several demand records the backend already scored.
+// Gemma explains; scores, order, withheld lists and eligibility stay with the caller.
+export async function explainDemandsForStartup(
+  input: { profile: unknown; candidates: Array<{ demand_id: string } & Record<string, unknown>> },
+  deps?: TaskDeps,
+) {
+  if (input.candidates.length === 0) throw new AiError('VALIDATION_ERROR', 'No candidates to explain.', 400);
+  const candidates = input.candidates.slice(0, MAX_CANDIDATES);
+  const ids = candidates.map((c) => c.demand_id);
+  const report: GuardReport = newReport();
+
+  const { data, meta } = await runTask({
+    schema: DemandExplanationsSchema,
+    user: demandMatchPrompt({ profile: input.profile, candidates }),
+    promptVersion: PROMPT_VERSIONS.demandMatch,
+    maxTokens: 1200,
+    temperature: 0.2,
+    deps,
+  });
+
+  const sourceText = JSON.stringify({ profile: input.profile, candidates });
+  const cleaned = sanitizeStrings(data.explanations, sourceText, report) as DemandExplanation[];
+  const explanations = groundDemandExplanations(cleaned, ids, report);
+
+  return {
+    explanations,
+    missing_explanations: ids.filter((id) => !explanations.some((e) => e.demand_id === id)),
+    guard: report,
+    meta: { ...meta, prompt_version: PROMPT_VERSIONS.demandMatch },
+  };
+}
 
 export interface ScoredCandidate {
   startupId: string;

@@ -1,7 +1,7 @@
 import { catalogCountries, demandBriefs } from '../lib/catalog';
 import { AppError } from '../lib/errors';
 import { challengesQuerySchema } from '../lib/schemas';
-import { NOTICE_SYNTHETIC } from '../lib/prompts';
+import { NOTICE_SYNTHETIC } from '../lib/constants';
 
 // GET /api/challenges. No model call.
 export async function handleChallenges(req: Request): Promise<Response> {

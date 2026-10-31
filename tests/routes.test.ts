@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { route } from '../src/lib/api';
-import { ModelTransportError } from '../src/lib/model';
+import { AiError, PROMPT_VERSIONS } from '../src/lib/ai';
 import { handleChallenges } from '../src/handlers/challenges';
 import { handleDemandMatches } from '../src/handlers/demand-matches';
 import { handlePoc } from '../src/handlers/poc';
@@ -75,14 +75,6 @@ describe('POST /api/demand/matches', () => {
     expect(body.withheld[0].withheld_reasons).toContain('goal_mismatch');
   });
 
-  it('retries once after a timeout and then succeeds', async () => {
-    const model = fakeModel([new ModelTransportError(undefined, true), explanation(['DEMO-CH-001'])]);
-    const res = await matches(model)(jsonRequest('http://x/api/demand/matches', { startup_profile: agriSmart, demand_ids: ['DEMO-CH-001'] }));
-    const body = await res.json();
-    expect(body.ai_status).toBe('ok');
-    expect(model.calls).toHaveLength(2);
-  });
-
   it('keeps scores and reports invalid_output when the model never returns valid JSON', async () => {
     const model = fakeModel(['not json', 'still not json']);
     const res = await matches(model)(jsonRequest('http://x/api/demand/matches', { startup_profile: agriSmart, demand_ids: ['DEMO-CH-001'] }));
@@ -94,7 +86,7 @@ describe('POST /api/demand/matches', () => {
   });
 
   it('keeps scores and reports unavailable on a rate limit, without a fake explanation', async () => {
-    const model = fakeModel([new ModelTransportError(429, false, '12')]);
+    const model = fakeModel([new AiError('UPSTREAM_RATE_LIMIT', 'busy', 429, 12)]);
     const res = await matches(model)(jsonRequest('http://x/api/demand/matches', { startup_profile: agriSmart, demand_ids: ['DEMO-CH-001'] }));
     const body = await res.json();
     expect(body.ai_status).toBe('unavailable');
@@ -175,11 +167,13 @@ describe('POST /api/analyze', () => {
     const body = await res.json();
     expect(res.status).toBe(200);
     expect(body.profile.stage).toBeNull();
-    expect(body.meta.prompt_version).toBe('passport-v1');
+    expect(body.meta.prompt_version).toBe(PROMPT_VERSIONS.passport);
+    expect(body.meta.source).toBe('gemma');
+    expect(body.needs_founder_confirmation).toBe(true);
   });
 
   it('maps a missing or rejected key to AI_UNAVAILABLE without echoing anything secret', async () => {
-    const res = await route((req) => handleAnalyze(req, fakeModel([new ModelTransportError(401)])), { ai: true })(
+    const res = await route((req) => handleAnalyze(req, fakeModel([new AiError('AI_AUTH_FAILED', 'key rejected', 401)])), { ai: true })(
       jsonRequest('http://x/api/analyze', { description: 'We are AgriSmart...' }),
     );
     const text = await res.text();

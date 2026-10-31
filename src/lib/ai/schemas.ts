@@ -27,10 +27,30 @@ export const StartupProfileSchema = z.object({
   product: z.string().trim().max(300).nullable(),
   primary_goal: z.enum(GOALS).nullable(),
   needs: strList(10),
+  // Capabilities the founder states in their own words. Suggestions only: the founder confirms
+  // them before matching, and the matcher treats them as self-reported.
+  capability_tags: z.array(z.string().trim().min(1).max(60)).max(15).default([]),
   missing_fields: strList(10),
   confidence_notes: strList(10),
 }).strict();
 export type StartupProfileOutput = z.infer<typeof StartupProfileSchema>;
+
+const txt = (max: number) => z.string().trim().min(1).max(max);
+
+// Prompt H (P0 direction) — one startup explained against several supplied demand records.
+// Field names and limits match the public /api/demand/matches contract. Unknown keys are dropped.
+export const DemandExplanationSchema = z.object({
+  demand_id: str,
+  why_match: txt(400),
+  fit_gaps: z.array(txt(200)).max(3),
+  next_action: txt(200),
+  evidence_for_fit: z.array(txt(300)).max(5).default([]),
+  missing_evidence: z.array(txt(300)).max(5).default([]),
+});
+export const DemandExplanationsSchema = z.object({
+  explanations: z.array(DemandExplanationSchema).max(5),
+});
+export type DemandExplanation = z.infer<typeof DemandExplanationSchema>;
 
 // Prompt H — reverse-match explanations (one entry per supplied candidate)
 export const MatchExplanationSchema = z.object({
@@ -47,34 +67,41 @@ export const MatchExplanationsSchema = z.object({
 }).strict();
 export type MatchExplanation = z.infer<typeof MatchExplanationSchema>;
 
-// Prompt I — POC draft (status is NOT model output; the backend forces it to 'proposed')
-export const PocMilestoneSchema = z.object({
-  day: z.number().int().min(1).max(120),
-  action: z.string().trim().min(1).max(300),
-  owner: z.enum(['startup', 'partner', 'joint']),
-}).strict();
-export const PocCriterionSchema = z.object({
-  metric: z.string().trim().min(1).max(200),
-  target: z.string().trim().min(1).max(200),
-  validation_method: z.string().trim().min(1).max(300),
-}).strict();
-export const PocPlanSchema = z.object({
-  proposed_duration_days: z.number().int().min(30).max(120),
-  objective: z.string().trim().min(1).max(500),
-  scope: z.string().trim().min(1).max(800),
-  milestones: z.array(PocMilestoneSchema).min(2).max(6),
-  success_criteria: z.array(PocCriterionSchema).min(1).max(5),
-  roles_and_responsibilities: strList(6),
-  budget_questions: strList(6),
-  ip_questions: strList(6),
-  data_sharing_questions: strList(6),
-  security_and_liability_questions: strList(6),
-  local_regulatory_checks: strList(6),
-  paid_conversion_path: z.string().trim().min(1).max(400),
-  assumptions: strList(6),
-  next_action: z.string().trim().min(1).max(300),
-}).strict();
-export type PocPlanOutput = z.infer<typeof PocPlanSchema>;
+// Prompt I — POC draft. Field names, limits and the 4-milestone cap match the public /api/poc contract.
+// status, demand_id and proposed_duration_days are NOT model output: the backend sets them.
+// Unknown keys (for example a model-invented "status": "agreed") are dropped, not trusted.
+export function makePocPlanSchema(durationDays: number) {
+  return z.object({
+    objective: txt(500),
+    scope: txt(800).nullish(),
+    milestones: z
+      .array(
+        z.object({
+          day: z.number().int().min(0).max(durationDays),
+          action: txt(300),
+          owner: z.enum(['startup', 'partner', 'joint']),
+        }),
+      )
+      .min(1)
+      .max(4),
+    success_criteria: z
+      .array(z.object({ metric: txt(200), target: txt(200), validation_method: txt(300) }))
+      .min(1)
+      .max(5),
+    preconditions: z.array(txt(300)).max(8),
+    ip_questions: z.array(txt(300)).max(6),
+    data_sharing_questions: z.array(txt(300)).max(6),
+    liability_questions: z.array(txt(300)).max(6),
+    possible_conversion_to_paid: txt(400),
+    // Optional extras. Absent in older outputs, so they default rather than fail.
+    roles_and_responsibilities: z.array(txt(300)).max(6).default([]),
+    budget_questions: z.array(txt(300)).max(6).default([]),
+    local_regulatory_checks: z.array(txt(300)).max(6).default([]),
+    assumptions: z.array(txt(300)).max(6).default([]),
+    next_action: txt(300).nullish(),
+  });
+}
+export type PocPlanOutput = z.infer<ReturnType<typeof makePocPlanSchema>>;
 
 // Prompt E — outreach draft (copy-only; never sent by the app)
 export const OutreachDraftSchema = z.object({
