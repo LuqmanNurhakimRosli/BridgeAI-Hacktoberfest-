@@ -1,0 +1,57 @@
+{
+  "profile_incomplete": {
+    "status": 422,
+    "body": {
+      "error": {
+        "code": "PROFILE_INCOMPLETE",
+        "message": "Confirm these fields before matching: stage."
+      }
+    }
+  },
+  "unknown_demand": {
+    "status": 404,
+    "body": {
+      "error": {
+        "code": "UNKNOWN_DEMAND",
+        "message": "Unknown demand ID: DEMO-NOPE"
+      }
+    }
+  },
+  "validation_error": {
+    "status": 400,
+    "body": {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "description: Too small: expected string to have >=1 characters"
+      }
+    }
+  },
+  "ai_unavailable": {
+    "status": 503,
+    "body": {
+      "error": {
+        "code": "AI_UNAVAILABLE",
+        "message": "Model service is unavailable. Try again later."
+      }
+    }
+  },
+  "rate_limited": {
+    "status": 429,
+    "retry_after_header": "30",
+    "body": {
+      "error": {
+        "code": "UPSTREAM_RATE_LIMIT",
+        "message": "Model service is rate limited. Try again shortly."
+      }
+    }
+  },
+  "invalid_model_output": {
+    "status": 502,
+    "body": {
+      "error": {
+        "code": "INVALID_MODEL_OUTPUT",
+        "message": "Model output failed validation."
+      }
+    }
+  }
+}

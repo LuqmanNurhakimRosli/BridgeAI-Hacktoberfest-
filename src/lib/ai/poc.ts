@@ -36,7 +36,7 @@ export async function generatePocPlan(
   const report: GuardReport = newReport();
 
   const { data, meta } = await runTask<PocPlanOutput>({
-    schema: makePocPlanChecked(durationDays),
+    schema: makePocPlanChecked(durationDays) as any,
     user,
     promptVersion: PROMPT_VERSIONS.poc,
     maxTokens: 1800,

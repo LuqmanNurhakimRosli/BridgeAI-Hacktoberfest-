@@ -6,13 +6,20 @@ import { NOTICE_SYNTHETIC } from '../lib/constants';
 import { readJson } from '../lib/api';
 import { explainDemandsForStartup, type TaskDeps } from '../lib/ai';
 import { publicMeta, withAi } from './ai-boundary';
+import { toRequestProfile } from '../lib/contract';
 
 type AiStatus = 'ok' | 'unavailable' | 'invalid_output' | 'not_run';
 type Explanation = Awaited<ReturnType<typeof explainDemandsForStartup>>['explanations'][number];
 
 // POST /api/demand/matches. Scores are computed before any model call and never change.
 export async function handleDemandMatches(req: Request, deps: TaskDeps = {}): Promise<Response> {
-  const body = matchesRequestSchema.parse(await readJson(req));
+  const rawBody = (await readJson(req)) as any;
+  const rawProfile = rawBody?.startup_profile ?? rawBody?.profile;
+  const cleanProfile = rawProfile ? toRequestProfile(rawProfile) : rawProfile;
+  const body = matchesRequestSchema.parse({
+    startup_profile: cleanProfile,
+    demand_ids: rawBody?.demand_ids,
+  });
   const profile = body.startup_profile;
 
   const missing = missingGateFields(profile);
@@ -47,10 +54,16 @@ export async function handleDemandMatches(req: Request, deps: TaskDeps = {}): Pr
   }
 
   return Response.json({
-    matches: eligible.map((a) => ({
-      ...a,
-      ai_analysis: explanations.get(a.demand_id) ?? null,
-    })),
+    matches: eligible.map((a) => {
+      const demand = demandById.get(a.demand_id);
+      return {
+        ...a,
+        demand,
+        score_label: `${a.score}% Fit`,
+        data_status: demand?.data_status ?? 'synthetic_demo',
+        ai_analysis: explanations.get(a.demand_id) ?? null,
+      };
+    }),
     withheld: withheld.map(({ demand_id, withheld_reasons }) => ({ demand_id, withheld_reasons })),
     ai_status,
     meta,

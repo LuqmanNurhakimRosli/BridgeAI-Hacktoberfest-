@@ -80,7 +80,12 @@ export const pocResponseSchema = z.object({
 
 // The request body for /api/demand/matches and /api/poc is stricter than the /api/analyze response:
 // it has no missing_fields or confidence_notes. This helper does the conversion the frontend must do.
-export function toRequestProfile(profile: z.infer<typeof StartupProfileSchema>) {
+export function toRequestProfile(profile: any) {
   const { missing_fields: _m, confidence_notes: _c, ...rest } = profile;
-  return rest;
+  return {
+    ...rest,
+    capability_tags: Array.isArray(rest.capability_tags)
+      ? rest.capability_tags
+      : (Array.isArray(rest.needs) ? rest.needs : []),
+  };
 }

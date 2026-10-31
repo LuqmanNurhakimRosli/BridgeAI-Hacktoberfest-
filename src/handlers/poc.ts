@@ -6,10 +6,21 @@ import { NOTICE_SYNTHETIC } from '../lib/constants';
 import { readJson } from '../lib/api';
 import { generatePocPlan, type TaskDeps } from '../lib/ai';
 import { publicMeta, withAi } from './ai-boundary';
+import { toRequestProfile } from '../lib/contract';
 
 // POST /api/poc. The plan is always a proposal. The server sets the status, never the model.
 export async function handlePoc(req: Request, deps: TaskDeps = {}): Promise<Response> {
-  const body = pocRequestSchema.parse(await readJson(req));
+  const rawBody = (await readJson(req)) as any;
+  const rawProfile = rawBody?.startup_profile ?? rawBody?.profile;
+  const cleanProfile = rawProfile ? toRequestProfile(rawProfile) : rawProfile;
+  const demandId = rawBody?.demand_id ?? rawBody?.demand?.id;
+  const durationDays = rawBody?.duration_days ?? rawBody?.durationDays ?? 75;
+  const body = pocRequestSchema.parse({
+    startup_profile: cleanProfile,
+    demand_id: demandId,
+    match_id: rawBody?.match_id,
+    duration_days: durationDays,
+  });
 
   const missing = missingGateFields(body.startup_profile);
   if (missing.length) {

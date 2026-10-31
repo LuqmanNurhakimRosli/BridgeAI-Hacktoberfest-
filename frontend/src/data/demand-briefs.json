@@ -1,0 +1,206 @@
+[
+  {
+    "id": "DEMO-CH-001",
+    "demand_kind": "corporate_challenge",
+    "buyer_name": "Nusantara Food & Farms Innovation Lab",
+    "title": "Offline-ready crop disease detection pilot",
+    "country": "Indonesia",
+    "industry": "AgriTech",
+    "problem": "Smallholder farmers across West Java and Lampung lose 18–30% of seasonal harvest to late blight and leaf rust due to delayed agronomic diagnosis. We need an affordable phone-based AI leaf-disease screening workflow to pilot across 150 cooperative farms.",
+    "must_have": ["crop disease detection", "mobile workflow"],
+    "nice_to_have": ["offline-first", "multi-language UI"],
+    "stages": ["Pre-seed", "Seed", "Series A"],
+    "goals": ["Pilot Partnership", "Market Expansion"],
+    "budget_range": {
+      "min": 35000,
+      "max": 65000,
+      "currency": "USD"
+    },
+    "deadline_label": "Rolling Pilot Cohort — Synthetic Demo",
+    "data_status": "synthetic_demo",
+    "source_url": null,
+    "last_verified_at": null,
+    "eligibility_notes": [
+      "Synthetic Demo record for hackathon evaluation — not an active commercial tender.",
+      "Requires field validation protocol and farmer data consent before pilot deployment."
+    ]
+  },
+  {
+    "id": "DEMO-CH-002",
+    "demand_kind": "corporate_challenge",
+    "buyer_name": "Merlion Smart Urban Mobility Lab (Demo)",
+    "title": "AI-Powered Citizen & Fleet Routing Optimization",
+    "country": "Singapore",
+    "industry": "Smart City",
+    "problem": "Last-mile electric logistics fleets face congestion bottlenecks during peak tropical rain events. Seeking predictive AI dispatch and multi-modal curb-management routing for a 60-vehicle commercial sandbox.",
+    "must_have": ["fleet routing optimization", "real-time telemetry API"],
+    "nice_to_have": ["EV battery range prediction", "weather-adaptive ETA"],
+    "stages": ["Seed", "Series A", "Growth"],
+    "goals": ["Pilot Partnership", "Market Expansion"],
+    "budget_range": {
+      "min": 50000,
+      "max": 120000,
+      "currency": "USD"
+    },
+    "deadline_label": "Q4 Sandbox Intake — Synthetic Demo",
+    "data_status": "synthetic_demo",
+    "source_url": null,
+    "last_verified_at": null,
+    "eligibility_notes": [
+      "Synthetic Demo record — illustrative Singapore urban mobility challenge.",
+      "Public ecosystem context reference: Startup ASEAN portal (https://startup-asean.org/)."
+    ]
+  },
+  {
+    "id": "DEMO-CH-003",
+    "demand_kind": "corporate_challenge",
+    "buyer_name": "Rakyat Rural Micro-Finance Innovation Unit (Demo)",
+    "title": "Digital Financial Inclusion & Alternative Credit Scoring for Rural Cooperatives",
+    "country": "Indonesia",
+    "industry": "Fintech",
+    "problem": "Rural agricultural cooperatives and micro-merchants in Indonesia and the Philippines lack formal credit bureau histories. Seeking explainable alternative credit scoring using consented supply-chain and mobile cashflow signals.",
+    "must_have": ["alternative credit scoring", "explainable risk model"],
+    "nice_to_have": ["Bahasa Indonesia UI", "offline agent onboarding"],
+    "stages": ["Pre-seed", "Seed", "Series A"],
+    "goals": ["Pilot Partnership", "Market Expansion"],
+    "budget_range": {
+      "min": 40000,
+      "max": 80000,
+      "currency": "USD"
+    },
+    "deadline_label": "Rolling Evaluation — Synthetic Demo",
+    "data_status": "synthetic_demo",
+    "source_url": null,
+    "last_verified_at": null,
+    "eligibility_notes": [
+      "Synthetic Demo record — no personal borrower PII may be ingested during initial sandbox evaluation."
+    ]
+  },
+  {
+    "id": "DEMO-CH-004",
+    "demand_kind": "corporate_challenge",
+    "buyer_name": "Chao Phraya Retail Cold-Chain Consortium (Demo)",
+    "title": "Sustainable Supply Chain & Food Waste Reduction across 40 Stores",
+    "country": "Thailand",
+    "industry": "Sustainability",
+    "problem": "Perishable produce spoilage between regional distribution centres and urban supermarkets exceeds 14%. Looking for AI shelf-life prediction and dynamic markdown/redistribution workflows.",
+    "must_have": ["cold-chain monitoring", "spoilage prediction"],
+    "nice_to_have": ["ERP webhook integration", "Thai language staff app"],
+    "stages": ["Seed", "Series A"],
+    "goals": ["Pilot Partnership", "Market Expansion"],
+    "budget_range": {
+      "min": 30000,
+      "max": 70000,
+      "currency": "USD"
+    },
+    "deadline_label": "Cohort Window — Synthetic Demo",
+    "data_status": "synthetic_demo",
+    "source_url": null,
+    "last_verified_at": null,
+    "eligibility_notes": [
+      "Synthetic Demo challenge record.",
+      "Historical reference note: Thailand NIA Global Startup Hub 2026 (https://startupthailand.nia.or.th/ext/globalstartuphub/startup-thailand-2026-en.php) is a past application window and is cited only as historical ecosystem context, not an open grant."
+    ]
+  },
+  {
+    "id": "DEMO-CH-005",
+    "demand_kind": "corporate_challenge",
+    "buyer_name": "Kuala Lumpur Industrial Decarbonisation Sandbox (Demo)",
+    "title": "Low-Carbon IoT Energy Monitoring for Manufacturing SMEs",
+    "country": "Malaysia",
+    "industry": "Clean Energy",
+    "problem": "Mid-tier industrial manufacturers in Selangor and Penang need automated Scope 2 emissions tracking and compressor load anomaly detection without expensive PLC replacements.",
+    "must_have": ["energy load monitoring", "Scope 2 carbon reporting"],
+    "nice_to_have": ["non-intrusive IoT clamp sensors", "automated ESG export"],
+    "stages": ["Pre-seed", "Seed", "Series A"],
+    "goals": ["Pilot Partnership", "Accelerator"],
+    "budget_range": {
+      "min": 45000,
+      "max": 90000,
+      "currency": "USD"
+    },
+    "deadline_label": "Open Sandbox — Synthetic Demo",
+    "data_status": "synthetic_demo",
+    "source_url": null,
+    "last_verified_at": null,
+    "eligibility_notes": [
+      "Synthetic Demo record — does not represent a government grant commitment."
+    ]
+  },
+  {
+    "id": "DEMO-CH-006",
+    "demand_kind": "corporate_challenge",
+    "buyer_name": "Mekong Delta Aquaculture Resilience Hub (Demo)",
+    "title": "Water Quality & Disease Early-Warning Sensor AI for Shrimp Farms",
+    "country": "Vietnam",
+    "industry": "AgriTech",
+    "problem": "Salinity intrusion and dissolved oxygen fluctuations trigger sudden mortality in intensive shrimp ponds across the Mekong Delta and coastal Philippines. Seeking low-cost mobile + sensor early-warning advisories.",
+    "must_have": ["aquaculture disease warning", "mobile workflow"],
+    "nice_to_have": ["offline-first", "SMS/Zalo alert integration"],
+    "stages": ["Pre-seed", "Seed"],
+    "goals": ["Pilot Partnership", "Market Expansion"],
+    "budget_range": {
+      "min": 25000,
+      "max": 50000,
+      "currency": "USD"
+    },
+    "deadline_label": "Seasonal Field Trial — Synthetic Demo",
+    "data_status": "synthetic_demo",
+    "source_url": null,
+    "last_verified_at": null,
+    "eligibility_notes": [
+      "Synthetic Demo record for cross-border AgriTech/AquaTech matching."
+    ]
+  },
+  {
+    "id": "DEMO-VC-001",
+    "demand_kind": "vc_thesis",
+    "buyer_name": "Straits Venture Capital Partners (Demo)",
+    "title": "Early-stage applied AI ventures in ASEAN with measurable B2B pilot traction",
+    "country": "Singapore",
+    "industry": "AI",
+    "problem": "Illustrative investor thesis seeking Seed and Series A applied AI startups across Singapore, Malaysia, Vietnam, and the Philippines that convert enterprise POCs into recurring commercial contracts.",
+    "must_have": ["validated B2B pilot", "applied AI workflow"],
+    "nice_to_have": ["cross-border ASEAN expansion", "defensible domain dataset"],
+    "stages": ["Seed", "Series A"],
+    "goals": ["Investment", "Market Expansion"],
+    "budget_range": {
+      "min": 250000,
+      "max": 1000000,
+      "currency": "USD"
+    },
+    "deadline_label": "Rolling Investment Thesis — Synthetic Demo",
+    "data_status": "synthetic_demo",
+    "source_url": null,
+    "last_verified_at": null,
+    "eligibility_notes": [
+      "Synthetic Demo investor thesis — illustrative only, not a licensed fund solicitation.",
+      "Public reference portal: Startup ASEAN (https://startup-asean.org/)."
+    ]
+  },
+  {
+    "id": "DEMO-VC-002",
+    "demand_kind": "vc_thesis",
+    "buyer_name": "Archipelago Climate & Agri Seed Fund (Demo)",
+    "title": "Seed-stage agritech and supply-chain resilience startups expanding to Indonesia",
+    "country": "Indonesia",
+    "industry": "AgriTech",
+    "problem": "Illustrative seed investment thesis backing Pre-seed and Seed founders solving smallholder productivity, crop disease diagnostics, and climate-resilient food supply chains in Indonesia.",
+    "must_have": ["crop disease detection", "audited unit economics"],
+    "nice_to_have": ["signed corporate LOI", "offline-first"],
+    "stages": ["Pre-seed", "Seed"],
+    "goals": ["Investment"],
+    "budget_range": {
+      "min": 150000,
+      "max": 500000,
+      "currency": "USD"
+    },
+    "deadline_label": "Active Thesis — Synthetic Demo",
+    "data_status": "synthetic_demo",
+    "source_url": null,
+    "last_verified_at": null,
+    "eligibility_notes": [
+      "Synthetic Demo VC thesis — compatibility scores do not imply investment commitment."
+    ]
+  }
+]

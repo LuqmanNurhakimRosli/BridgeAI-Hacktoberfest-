@@ -1,0 +1,32 @@
+{
+  "profile": {
+    "startup_name": null,
+    "description": "We build an app that helps people manage their farms.",
+    "industry": null,
+    "home_country": null,
+    "target_country": null,
+    "stage": null,
+    "product": "Farm management app",
+    "primary_goal": null,
+    "needs": [],
+    "capability_tags": [],
+    "missing_fields": [
+      "industry",
+      "target_country",
+      "stage",
+      "primary_goal"
+    ],
+    "confidence_notes": [
+      "Industry is not stated; \"farms\" alone does not confirm AgriTech"
+    ]
+  },
+  "needs_founder_confirmation": true,
+  "meta": {
+    "source": "fixture",
+    "model": "google/gemma-4-26b-a4b-it",
+    "provider": null,
+    "prompt_version": "passport-v4",
+    "latency_ms": 0,
+    "repaired": false
+  }
+}

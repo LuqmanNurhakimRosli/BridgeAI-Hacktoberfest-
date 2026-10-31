@@ -1,0 +1,545 @@
+[
+  {
+    "id": "DEMO-DEAL-001",
+    "startup_name": "AgriSmart",
+    "demand_id": "DEMO-CH-001",
+    "partner_name": "Nusantara Food & Farms Innovation Lab",
+    "title": "Offline-ready crop disease detection pilot",
+    "country": "Indonesia",
+    "sector": "AgriTech",
+    "track": "commercial_poc",
+    "state": "poc_running",
+    "data_status": "synthetic_demo",
+    "ai_followup_suggestion": "Day 30 field checkpoint approaching: request initial leaf-scan precision/recall logs from the 3 West Java pilot cooperatives before scheduling the mid-pilot review.",
+    "events": [
+      {
+        "id": "EVT-DEMO-101",
+        "deal_id": "DEMO-DEAL-001",
+        "event_type": "match_qualified",
+        "from_state": "identified",
+        "to_state": "qualified",
+        "happened_at": "2026-08-05T09:00:00.000Z",
+        "recorded_at": "2026-08-05T09:05:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Synthetic demo cohort record: Passed hard sector & stage eligibility gates (85/100 compatibility)."
+      },
+      {
+        "id": "EVT-DEMO-102",
+        "deal_id": "DEMO-DEAL-001",
+        "event_type": "introduction_requested",
+        "from_state": "qualified",
+        "to_state": "introduction_requested",
+        "happened_at": "2026-08-08T11:30:00.000Z",
+        "recorded_at": "2026-08-08T11:32:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Synthetic demo cohort: Founder requested warm intro with Bahasa Indonesia outreach brief."
+      },
+      {
+        "id": "EVT-DEMO-103",
+        "deal_id": "DEMO-DEAL-001",
+        "event_type": "first_meeting",
+        "from_state": "introduction_requested",
+        "to_state": "first_meeting",
+        "happened_at": "2026-08-15T07:00:00.000Z",
+        "recorded_at": "2026-08-15T08:10:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Synthetic demo discovery call completed with Agronomy Innovation Lead."
+      },
+      {
+        "id": "EVT-DEMO-104",
+        "deal_id": "DEMO-DEAL-001",
+        "event_type": "proposal_shared",
+        "from_state": "first_meeting",
+        "to_state": "proposal_shared",
+        "happened_at": "2026-08-22T10:00:00.000Z",
+        "recorded_at": "2026-08-22T10:15:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Shared proposed 75-day cross-border POC scope and farmer data consent checklist."
+      },
+      {
+        "id": "EVT-DEMO-105",
+        "deal_id": "DEMO-DEAL-001",
+        "event_type": "agreement_signed",
+        "from_state": "proposal_shared",
+        "to_state": "agreement_signed",
+        "happened_at": "2026-09-05T14:00:00.000Z",
+        "recorded_at": "2026-09-05T14:20:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Synthetic demo non-binding pilot testing protocol acknowledged by both teams."
+      },
+      {
+        "id": "EVT-DEMO-106",
+        "deal_id": "DEMO-DEAL-001",
+        "event_type": "poc_started",
+        "from_state": "agreement_signed",
+        "to_state": "poc_running",
+        "happened_at": "2026-09-12T08:00:00.000Z",
+        "recorded_at": "2026-09-12T08:30:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Field trial kicked off with 45 cooperative extension officers in West Java."
+      }
+    ],
+    "tasks": [
+      {
+        "id": "TASK-DEMO-001",
+        "deal_id": "DEMO-DEAL-001",
+        "title": "30-Day Field Trial Telemetry & Farmer Usability Check-in",
+        "due_at": "2026-11-05T09:00:00.000Z",
+        "cadence_days": 30,
+        "status": "pending"
+      },
+      {
+        "id": "TASK-DEMO-002",
+        "deal_id": "DEMO-DEAL-001",
+        "title": "90-Day Commercial Conversion & Procurement Review",
+        "due_at": "2026-12-15T09:00:00.000Z",
+        "cadence_days": 90,
+        "status": "pending"
+      }
+    ],
+    "created_at": "2026-08-05T09:00:00.000Z",
+    "last_event_at": "2026-09-12T08:00:00.000Z"
+  },
+  {
+    "id": "DEMO-DEAL-002",
+    "startup_name": "GridPulse Mobility AI",
+    "demand_id": "DEMO-CH-002",
+    "partner_name": "Merlion Smart Urban Mobility Lab (Demo)",
+    "title": "AI-Powered Citizen & Fleet Routing Optimization",
+    "country": "Singapore",
+    "sector": "Smart City",
+    "track": "commercial_poc",
+    "state": "paid",
+    "data_status": "synthetic_demo",
+    "ai_followup_suggestion": "Paid annual licence active: schedule 180-day regional expansion check-in to evaluate multi-depot rollout across Johor–Singapore corridor.",
+    "events": [
+      {
+        "id": "EVT-DEMO-201",
+        "deal_id": "DEMO-DEAL-002",
+        "event_type": "match_qualified",
+        "from_state": "identified",
+        "to_state": "qualified",
+        "happened_at": "2026-06-01T08:00:00.000Z",
+        "recorded_at": "2026-06-01T08:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Synthetic demo cohort: Qualified against EV fleet routing telemetry requirements."
+      },
+      {
+        "id": "EVT-DEMO-202",
+        "deal_id": "DEMO-DEAL-002",
+        "event_type": "introduction_requested",
+        "from_state": "qualified",
+        "to_state": "introduction_requested",
+        "happened_at": "2026-06-04T10:00:00.000Z",
+        "recorded_at": "2026-06-04T10:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Introduction requested via sandbox coordinator (synthetic demo)."
+      },
+      {
+        "id": "EVT-DEMO-203",
+        "deal_id": "DEMO-DEAL-002",
+        "event_type": "first_meeting",
+        "from_state": "introduction_requested",
+        "to_state": "first_meeting",
+        "happened_at": "2026-06-10T09:00:00.000Z",
+        "recorded_at": "2026-06-10T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Technical architecture review completed."
+      },
+      {
+        "id": "EVT-DEMO-204",
+        "deal_id": "DEMO-DEAL-002",
+        "event_type": "proposal_shared",
+        "from_state": "first_meeting",
+        "to_state": "proposal_shared",
+        "happened_at": "2026-06-16T09:00:00.000Z",
+        "recorded_at": "2026-06-16T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Shared 60-day routing sandbox proposal."
+      },
+      {
+        "id": "EVT-DEMO-205",
+        "deal_id": "DEMO-DEAL-002",
+        "event_type": "agreement_signed",
+        "from_state": "proposal_shared",
+        "to_state": "agreement_signed",
+        "happened_at": "2026-06-25T09:00:00.000Z",
+        "recorded_at": "2026-06-25T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Sandbox test agreement signed (synthetic demo)."
+      },
+      {
+        "id": "EVT-DEMO-206",
+        "deal_id": "DEMO-DEAL-002",
+        "event_type": "poc_started",
+        "from_state": "agreement_signed",
+        "to_state": "poc_running",
+        "happened_at": "2026-07-01T09:00:00.000Z",
+        "recorded_at": "2026-07-01T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "60-vehicle routing pilot launched."
+      },
+      {
+        "id": "EVT-DEMO-207",
+        "deal_id": "DEMO-DEAL-002",
+        "event_type": "poc_completed",
+        "from_state": "poc_running",
+        "to_state": "poc_completed",
+        "happened_at": "2026-08-25T09:00:00.000Z",
+        "recorded_at": "2026-08-25T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "POC achieved 14.2% reduction in peak-rain dwell time."
+      },
+      {
+        "id": "EVT-DEMO-208",
+        "deal_id": "DEMO-DEAL-002",
+        "event_type": "contract_signed",
+        "from_state": "poc_completed",
+        "to_state": "contract_signed",
+        "happened_at": "2026-09-05T09:00:00.000Z",
+        "recorded_at": "2026-09-05T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Annual commercial deployment contract executed (synthetic demo)."
+      },
+      {
+        "id": "EVT-DEMO-209",
+        "deal_id": "DEMO-DEAL-002",
+        "event_type": "invoice_paid",
+        "from_state": "contract_signed",
+        "to_state": "paid",
+        "happened_at": "2026-09-19T09:00:00.000Z",
+        "recorded_at": "2026-09-19T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "First commercial tranche settled (110 days from qualification to paid)."
+      }
+    ],
+    "tasks": [
+      {
+        "id": "TASK-DEMO-003",
+        "deal_id": "DEMO-DEAL-002",
+        "title": "180-Day Post-Deployment Expansion Review",
+        "due_at": "2027-01-15T09:00:00.000Z",
+        "cadence_days": 180,
+        "status": "pending"
+      }
+    ],
+    "created_at": "2026-06-01T08:00:00.000Z",
+    "last_event_at": "2026-09-19T09:00:00.000Z"
+  },
+  {
+    "id": "DEMO-DEAL-003",
+    "startup_name": "KoperasiScore AI",
+    "demand_id": "DEMO-CH-003",
+    "partner_name": "Rakyat Rural Micro-Finance Innovation Unit (Demo)",
+    "title": "Digital Financial Inclusion & Alternative Credit Scoring for Rural Cooperatives",
+    "country": "Indonesia",
+    "sector": "Fintech",
+    "track": "commercial_poc",
+    "state": "contract_signed",
+    "data_status": "synthetic_demo",
+    "ai_followup_suggestion": "Contract signed after completed POC: confirm milestone-1 onboarding invoice schedule and data-privacy audit sign-off.",
+    "events": [
+      {
+        "id": "EVT-DEMO-301",
+        "deal_id": "DEMO-DEAL-003",
+        "event_type": "match_qualified",
+        "from_state": "identified",
+        "to_state": "qualified",
+        "happened_at": "2026-07-02T09:00:00.000Z",
+        "recorded_at": "2026-07-02T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Qualified for alternative rural cooperative credit scoring sandbox."
+      },
+      {
+        "id": "EVT-DEMO-302",
+        "deal_id": "DEMO-DEAL-003",
+        "event_type": "introduction_requested",
+        "from_state": "qualified",
+        "to_state": "introduction_requested",
+        "happened_at": "2026-07-06T09:00:00.000Z",
+        "recorded_at": "2026-07-06T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-303",
+        "deal_id": "DEMO-DEAL-003",
+        "event_type": "first_meeting",
+        "from_state": "introduction_requested",
+        "to_state": "first_meeting",
+        "happened_at": "2026-07-14T09:00:00.000Z",
+        "recorded_at": "2026-07-14T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-304",
+        "deal_id": "DEMO-DEAL-003",
+        "event_type": "proposal_shared",
+        "from_state": "first_meeting",
+        "to_state": "proposal_shared",
+        "happened_at": "2026-07-21T09:00:00.000Z",
+        "recorded_at": "2026-07-21T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-305",
+        "deal_id": "DEMO-DEAL-003",
+        "event_type": "agreement_signed",
+        "from_state": "proposal_shared",
+        "to_state": "agreement_signed",
+        "happened_at": "2026-08-01T09:00:00.000Z",
+        "recorded_at": "2026-08-01T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-306",
+        "deal_id": "DEMO-DEAL-003",
+        "event_type": "poc_started",
+        "from_state": "agreement_signed",
+        "to_state": "poc_running",
+        "happened_at": "2026-08-05T09:00:00.000Z",
+        "recorded_at": "2026-08-05T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-307",
+        "deal_id": "DEMO-DEAL-003",
+        "event_type": "poc_completed",
+        "from_state": "poc_running",
+        "to_state": "poc_completed",
+        "happened_at": "2026-09-25T09:00:00.000Z",
+        "recorded_at": "2026-09-25T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Back-tested anonymized cooperative ledger cohort with 91% explainability score."
+      },
+      {
+        "id": "EVT-DEMO-308",
+        "deal_id": "DEMO-DEAL-003",
+        "event_type": "contract_signed",
+        "from_state": "poc_completed",
+        "to_state": "contract_signed",
+        "happened_at": "2026-10-10T09:00:00.000Z",
+        "recorded_at": "2026-10-10T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Signed 12-month cooperative scoring license (awaiting first invoice payment)."
+      }
+    ],
+    "tasks": [
+      {
+        "id": "TASK-DEMO-004",
+        "deal_id": "DEMO-DEAL-003",
+        "title": "30-Day Invoice Settlement & Compliance Check-in",
+        "due_at": "2026-11-09T09:00:00.000Z",
+        "cadence_days": 30,
+        "status": "pending"
+      }
+    ],
+    "created_at": "2026-07-02T09:00:00.000Z",
+    "last_event_at": "2026-10-10T09:00:00.000Z"
+  },
+  {
+    "id": "DEMO-DEAL-004",
+    "startup_name": "FreshChain Sense",
+    "demand_id": "DEMO-CH-004",
+    "partner_name": "Chao Phraya Retail Cold-Chain Consortium (Demo)",
+    "title": "Sustainable Supply Chain & Food Waste Reduction across 40 Stores",
+    "country": "Thailand",
+    "sector": "Sustainability",
+    "track": "commercial_poc",
+    "state": "proposal_shared",
+    "data_status": "synthetic_demo",
+    "ai_followup_suggestion": "Proposal shared 9 days ago: follow up with cold-chain operations team on store-level webhook access and sensor calibration ownership.",
+    "events": [
+      {
+        "id": "EVT-DEMO-401",
+        "deal_id": "DEMO-DEAL-004",
+        "event_type": "match_qualified",
+        "from_state": "identified",
+        "to_state": "qualified",
+        "happened_at": "2026-10-02T09:00:00.000Z",
+        "recorded_at": "2026-10-02T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-402",
+        "deal_id": "DEMO-DEAL-004",
+        "event_type": "introduction_requested",
+        "from_state": "qualified",
+        "to_state": "introduction_requested",
+        "happened_at": "2026-10-06T09:00:00.000Z",
+        "recorded_at": "2026-10-06T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-403",
+        "deal_id": "DEMO-DEAL-004",
+        "event_type": "first_meeting",
+        "from_state": "introduction_requested",
+        "to_state": "first_meeting",
+        "happened_at": "2026-10-14T09:00:00.000Z",
+        "recorded_at": "2026-10-14T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-404",
+        "deal_id": "DEMO-DEAL-004",
+        "event_type": "proposal_shared",
+        "from_state": "first_meeting",
+        "to_state": "proposal_shared",
+        "happened_at": "2026-10-22T09:00:00.000Z",
+        "recorded_at": "2026-10-22T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "75-day proposed POC draft shared; awaiting legal/IP checklist review."
+      }
+    ],
+    "tasks": [
+      {
+        "id": "TASK-DEMO-005",
+        "deal_id": "DEMO-DEAL-004",
+        "title": "30-Day Proposal & Procurement Scope Follow-up",
+        "due_at": "2026-11-21T09:00:00.000Z",
+        "cadence_days": 30,
+        "status": "pending"
+      }
+    ],
+    "created_at": "2026-10-02T09:00:00.000Z",
+    "last_event_at": "2026-10-22T09:00:00.000Z"
+  },
+  {
+    "id": "DEMO-DEAL-005",
+    "startup_name": "KilowattIQ Malaysia",
+    "demand_id": "DEMO-CH-005",
+    "partner_name": "Kuala Lumpur Industrial Decarbonisation Sandbox (Demo)",
+    "title": "Low-Carbon IoT Energy Monitoring for Manufacturing SMEs",
+    "country": "Malaysia",
+    "sector": "Clean Energy",
+    "track": "commercial_poc",
+    "state": "first_meeting",
+    "data_status": "synthetic_demo",
+    "ai_followup_suggestion": "First meeting completed: generate a 75-day proposed POC plan covering non-intrusive clamp deployment at 2 Selangor factories.",
+    "events": [
+      {
+        "id": "EVT-DEMO-501",
+        "deal_id": "DEMO-DEAL-005",
+        "event_type": "match_qualified",
+        "from_state": "identified",
+        "to_state": "qualified",
+        "happened_at": "2026-10-12T09:00:00.000Z",
+        "recorded_at": "2026-10-12T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-502",
+        "deal_id": "DEMO-DEAL-005",
+        "event_type": "introduction_requested",
+        "from_state": "qualified",
+        "to_state": "introduction_requested",
+        "happened_at": "2026-10-18T09:00:00.000Z",
+        "recorded_at": "2026-10-18T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-503",
+        "deal_id": "DEMO-DEAL-005",
+        "event_type": "first_meeting",
+        "from_state": "introduction_requested",
+        "to_state": "first_meeting",
+        "happened_at": "2026-10-26T09:00:00.000Z",
+        "recorded_at": "2026-10-26T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Initial technical discovery meeting with plant sustainability leads."
+      }
+    ],
+    "tasks": [
+      {
+        "id": "TASK-DEMO-006",
+        "deal_id": "DEMO-DEAL-005",
+        "title": "Share Draft 75-Day Factory Metering POC Plan",
+        "due_at": "2026-11-08T09:00:00.000Z",
+        "cadence_days": 30,
+        "status": "pending"
+      }
+    ],
+    "created_at": "2026-10-12T09:00:00.000Z",
+    "last_event_at": "2026-10-26T09:00:00.000Z"
+  },
+  {
+    "id": "DEMO-DEAL-006",
+    "startup_name": "MekongAqua Guard",
+    "demand_id": "DEMO-CH-006",
+    "partner_name": "Mekong Delta Aquaculture Resilience Hub (Demo)",
+    "title": "Water Quality & Disease Early-Warning Sensor AI for Shrimp Farms",
+    "country": "Vietnam",
+    "sector": "AgriTech",
+    "track": "commercial_poc",
+    "state": "introduction_requested",
+    "data_status": "synthetic_demo",
+    "ai_followup_suggestion": "Introduction requested 4 days ago: prepare Vietnamese/English 1-page field validation summary before scheduling discovery call.",
+    "events": [
+      {
+        "id": "EVT-DEMO-601",
+        "deal_id": "DEMO-DEAL-006",
+        "event_type": "match_qualified",
+        "from_state": "identified",
+        "to_state": "qualified",
+        "happened_at": "2026-10-24T09:00:00.000Z",
+        "recorded_at": "2026-10-24T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo"
+      },
+      {
+        "id": "EVT-DEMO-602",
+        "deal_id": "DEMO-DEAL-006",
+        "event_type": "introduction_requested",
+        "from_state": "qualified",
+        "to_state": "introduction_requested",
+        "happened_at": "2026-10-27T09:00:00.000Z",
+        "recorded_at": "2026-10-27T09:00:00.000Z",
+        "actor_id": "demo_cohort",
+        "evidence_status": "synthetic_demo",
+        "note": "Warm introduction requested to Mekong Delta cooperative coordinator."
+      }
+    ],
+    "tasks": [
+      {
+        "id": "TASK-DEMO-007",
+        "deal_id": "DEMO-DEAL-006",
+        "title": "30-Day Intro & Discovery Call Follow-up",
+        "due_at": "2026-11-26T09:00:00.000Z",
+        "cadence_days": 30,
+        "status": "pending"
+      }
+    ],
+    "created_at": "2026-10-24T09:00:00.000Z",
+    "last_event_at": "2026-10-27T09:00:00.000Z"
+  }
+]
