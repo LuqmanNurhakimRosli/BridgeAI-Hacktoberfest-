@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-10-31T04:36:11.733Z",
+  "mode": "offline_validation",
+  "passport_version": "passport-eval-v1",
+  "passport_groups": {
+    "malaysian": 8,
+    "other_asean": 8,
+    "incomplete": 5,
+    "multi_goal": 4,
+    "adversarial": 4
+  },
+  "case_files": {
+    "passport": 29,
+    "match": 8,
+    "poc": 6,
+    "outreach": 10,
+    "coach": 6
+  }
+}

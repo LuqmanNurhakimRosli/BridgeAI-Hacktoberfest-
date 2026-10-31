@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "source": "fixture",
+    "model": "google/gemma-4-26b-a4b-it",
+    "prompt_version": "passport-v3",
+    "note": "Hand-written fixture in the expected shape. Not a live model output."
+  },
+  "profile": {
+    "startup_name": null,
+    "description": "We build an app that helps people manage their farms.",
+    "industry": null,
+    "home_country": null,
+    "target_country": null,
+    "stage": null,
+    "product": "Farm management app",
+    "primary_goal": null,
+    "needs": [],
+    "missing_fields": ["industry", "home_country", "target_country", "stage", "primary_goal"],
+    "confidence_notes": ["Industry is not stated; 'farms' is not enough to confirm AgriTech"]
+  }
+}

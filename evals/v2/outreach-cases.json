@@ -1,0 +1,16 @@
+{
+  "version": "outreach-eval-v1",
+  "note": "Each case must return draft_only, the requested language, a body under 180 words, and no recipient names, emails, or URLs that were not in the input.",
+  "cases": [
+    { "id": "O-01", "language": "English", "scenario": "AgriSmart to an Indonesian pilot hub" },
+    { "id": "O-02", "language": "English", "scenario": "Fintech to a Singapore investor thesis" },
+    { "id": "O-03", "language": "English", "scenario": "EdTech to a Philippine school group" },
+    { "id": "O-04", "language": "English", "scenario": "Logistics to a Vietnamese distributor" },
+    { "id": "O-05", "language": "Bahasa Melayu", "scenario": "AgriSmart to an Indonesian pilot hub" },
+    { "id": "O-06", "language": "Bahasa Melayu", "scenario": "FinTech to a Thai bank innovation lab" },
+    { "id": "O-07", "language": "Bahasa Indonesia", "scenario": "AgriSmart to an Indonesian pilot hub" },
+    { "id": "O-08", "language": "Bahasa Indonesia", "scenario": "Healthtech to a Vietnamese hospital group" },
+    { "id": "O-09", "language": "Bahasa Indonesia", "scenario": "AI startup to a Singapore VC thesis" },
+    { "id": "O-10", "language": "Bahasa Melayu", "scenario": "Clean energy startup to a Thai utility pilot" }
+  ]
+}

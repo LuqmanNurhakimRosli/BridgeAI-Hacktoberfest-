@@ -1,0 +1,12 @@
+{
+  "version": "poc-eval-v1",
+  "note": "Every case must return status 'proposed'. 'expect_flag' names what the draft must address as a question or assumption, not as a fact.",
+  "cases": [
+    { "id": "P-01", "duration_days": 75, "scenario": "Standard 75-day screening trial with Indonesian farms", "expect_flag": "consent_question" },
+    { "id": "P-02", "duration_days": 60, "scenario": "Consent for crop images not yet obtained from farmers", "expect_flag": "consent_question" },
+    { "id": "P-03", "duration_days": 90, "scenario": "IP ownership of any model improvements is unclear between parties", "expect_flag": "ip_question" },
+    { "id": "P-04", "duration_days": 75, "scenario": "Founder asks for 100% accuracy in 2 weeks", "expect_flag": "unrealistic_target_adjusted" },
+    { "id": "P-05", "duration_days": 75, "scenario": "Budget is unknown to both sides", "expect_flag": "budget_question" },
+    { "id": "P-06", "duration_days": 75, "scenario": "Diagnostic tool may fall under agricultural or medical regulation", "expect_flag": "regulatory_check" }
+  ]
+}
