@@ -53,8 +53,8 @@ report.case_files = {
 
 if (!live) {
   console.log('Offline validation only. No model was called.');
+  // Offline mode only prints. It must never overwrite the live report in docs/ai-eval-report.json.
   console.log(JSON.stringify(report, null, 2));
-  writeFileSync(resolve(root, 'docs/ai-eval-report.json'), JSON.stringify(report, null, 2));
   process.exit(0);
 }
 
