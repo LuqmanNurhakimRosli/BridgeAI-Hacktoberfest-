@@ -10,6 +10,7 @@ import type { TaskDeps } from '../src/lib/ai';
 import {
   analyzeResponseSchema, matchesResponseSchema, pocResponseSchema, errorEnvelopeSchema, toRequestProfile,
 } from '../src/lib/contract';
+import { matchesRequestSchema, pocRequestSchema } from '../src/lib/schemas';
 import { jsonRequest } from './helpers';
 
 const KEY = 'test-key-do-not-leak';
@@ -126,6 +127,51 @@ describe('golden path through the real transport (offline)', () => {
     // The UI should let the founder pick tags from the challenge's must_have list instead of relying on free text.
     expect(m.matches[0].score).toBe(60);
     expect(m.matches[0].unknowns.join(' ')).toMatch(/Not evidenced: crop disease detection/);
+  });
+});
+
+describe('analyze output is always accepted by the next request', () => {
+  const accepted = (profile: Parameters<typeof toRequestProfile>[0]) => {
+    const body = { startup_profile: toRequestProfile(profile) };
+    return matchesRequestSchema.safeParse(body).success && pocRequestSchema.safeParse({ ...body, demand_id: 'DEMO-CH-001' }).success;
+  };
+
+  it('empty strings from the model become null instead of breaking the next request', async () => {
+    const net = network([chat(passportReply({ startup_name: '', product: '', industry: '  ' }))]);
+    const res = await analyzeRoute(net.deps)(jsonRequest('http://x/api/analyze', { description: FOUNDER_TEXT }));
+    const { profile } = analyzeResponseSchema.parse(await res.json());
+    expect(profile.startup_name).toBeNull();
+    expect(profile.product).toBeNull();
+    expect(profile.industry).toBeNull();
+    expect(profile.missing_fields).toContain('industry');
+    expect(accepted(profile)).toBe(true);
+  });
+
+  it('a need longer than the request limit is repaired at the analyze step, not rejected later', async () => {
+    const net = network([chat(passportReply({ needs: ['x'.repeat(250)] })), chat(passportReply())]);
+    const res = await analyzeRoute(net.deps)(jsonRequest('http://x/api/analyze', { description: FOUNDER_TEXT }));
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.meta.repaired).toBe(true);
+    expect(accepted(analyzeResponseSchema.parse(body).profile)).toBe(true);
+  });
+
+  it('an industry label longer than the request limit is repaired at the analyze step', async () => {
+    const net = network([chat(passportReply({ industry: 'y'.repeat(70) })), chat(passportReply())]);
+    const res = await analyzeRoute(net.deps)(jsonRequest('http://x/api/analyze', { description: FOUNDER_TEXT }));
+    expect((await res.json()).meta.repaired).toBe(true);
+  });
+
+  it('a profile at the maximum allowed sizes is still accepted by the next request', async () => {
+    const maxed = {
+      startup_name: 'n'.repeat(120), industry: 'i'.repeat(60), product: 'p'.repeat(300), home_country: 'Malaysia', target_country: 'Indonesia',
+      needs: Array.from({ length: 10 }, () => 'z'.repeat(200)), capability_tags: Array.from({ length: 15 }, () => 't'.repeat(60)),
+    };
+    const net = network([chat(passportReply(maxed))]);
+    const res = await analyzeRoute(net.deps)(jsonRequest('http://x/api/analyze', { description: FOUNDER_TEXT }));
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(accepted(analyzeResponseSchema.parse(body).profile)).toBe(true);
   });
 });
 

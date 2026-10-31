@@ -86,7 +86,18 @@ export function normalizeIndustry(label: string | null): string | null {
 
 // Keeps the profile honest: unsupported countries become null, and every null
 // matching field is listed in missing_fields.
-export function normalizeProfile(profile: StartupProfileOutput, report: GuardReport): StartupProfileOutput {
+export function normalizeProfile(input: StartupProfileOutput, report: GuardReport): StartupProfileOutput {
+  // An empty string means "unknown". The next request (/api/demand/matches) rejects empty strings,
+  // so they become null here, and null fields are then listed in missing_fields below.
+  const blank = (s: string | null) => (s !== null && s.trim() === '' ? null : s);
+  const profile: StartupProfileOutput = {
+    ...input,
+    startup_name: blank(input.startup_name),
+    industry: blank(input.industry),
+    home_country: blank(input.home_country),
+    target_country: blank(input.target_country),
+    product: blank(input.product),
+  };
   const supported = new Set<string>(SUPPORTED_COUNTRIES.map((c) => c.toLowerCase()));
   const fixCountry = (c: string | null, label: string) => {
     if (c === null) return null;

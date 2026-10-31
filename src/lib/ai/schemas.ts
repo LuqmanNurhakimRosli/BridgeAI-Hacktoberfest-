@@ -20,13 +20,15 @@ const strList = (max: number) => z.array(str).max(max);
 export const StartupProfileSchema = z.object({
   startup_name: z.string().trim().max(120).nullable(),
   description: z.string().trim().max(3000),
-  industry: z.string().trim().max(80).nullable(),
+  // Limits here must not exceed the request schema in src/lib/schemas.ts, so that anything this step
+  // accepts can be sent straight back to /api/demand/matches and /api/poc.
+  industry: z.string().trim().max(60).nullable(),
   home_country: z.string().trim().max(40).nullable(),
   target_country: z.string().trim().max(40).nullable(),
   stage: z.enum(STAGES).nullable(),
   product: z.string().trim().max(300).nullable(),
   primary_goal: z.enum(GOALS).nullable(),
-  needs: strList(10),
+  needs: z.array(z.string().trim().min(1).max(200)).max(10),
   // Capabilities the founder states in their own words. Suggestions only: the founder confirms
   // them before matching, and the matcher treats them as self-reported.
   capability_tags: z.array(z.string().trim().min(1).max(60)).max(15).default([]),
