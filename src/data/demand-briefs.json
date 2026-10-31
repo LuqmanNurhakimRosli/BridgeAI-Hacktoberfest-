@@ -1,0 +1,50 @@
+[
+  {
+    "id": "DEMO-CH-001",
+    "demand_kind": "corporate_challenge",
+    "buyer_name": "Nusantara Food & Farms Innovation Lab (Synthetic Demo)",
+    "title": "Offline-ready crop disease detection pilot",
+    "country": "Indonesia",
+    "industry": "AgriTech",
+    "problem": "Pilot an affordable phone-based disease screening tool at a small group of farms.",
+    "must_have": ["crop disease detection", "mobile workflow"],
+    "nice_to_have": ["offline-first", "multi-language UI"],
+    "stages": ["Pre-seed", "Seed", "Series A"],
+    "goals": ["Pilot Partnership", "Market Expansion"],
+    "budget_range": null,
+    "data_status": "synthetic_demo",
+    "source_url": null
+  },
+  {
+    "id": "DEMO-CH-002",
+    "demand_kind": "corporate_challenge",
+    "buyer_name": "Mekong Payments Lab (Synthetic Demo)",
+    "title": "Merchant cash-flow forecasting pilot",
+    "country": "Vietnam",
+    "industry": "FinTech",
+    "problem": "Test a forecasting tool for small merchants using anonymised transaction summaries.",
+    "must_have": ["cash-flow forecasting", "data privacy controls"],
+    "nice_to_have": ["SME dashboard"],
+    "stages": ["Seed", "Series A"],
+    "goals": ["Pilot Partnership"],
+    "budget_range": null,
+    "data_status": "synthetic_demo",
+    "source_url": null
+  },
+  {
+    "id": "DEMO-VC-001",
+    "demand_kind": "vc_thesis",
+    "buyer_name": "Straits Venture Capital Partners (Demo)",
+    "title": "Early-stage applied AI ventures in ASEAN",
+    "country": "Singapore",
+    "industry": "AI",
+    "problem": "Illustrative investor thesis for applied AI ventures with measurable commercial traction.",
+    "must_have": ["validated use case"],
+    "nice_to_have": ["regional expansion", "defensible product"],
+    "stages": ["Seed", "Series A"],
+    "goals": ["Investment"],
+    "budget_range": null,
+    "data_status": "synthetic_demo",
+    "source_url": null
+  }
+]
