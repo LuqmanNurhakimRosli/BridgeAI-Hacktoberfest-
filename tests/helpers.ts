@@ -1,21 +1,33 @@
-import type { ChatMessage, ModelClient } from '../src/lib/model';
+import type { ChatMessage } from '../src/lib/ai/call-gemma';
+import type { TaskDeps } from '../src/lib/ai';
 import type { StartupProfile } from '../src/lib/schemas';
 
-// Scripted fake model. Each call consumes the next scripted reply; the last reply repeats.
-// Errors in the script are thrown, which simulates transport failures.
+// Scripted fake model, injected at the AI layer's `llm` seam. Each call consumes the next scripted
+// reply; the last reply repeats. Errors in the script are thrown, which simulates transport failures
+// (use AiError to match what the real transport throws). Transport retries are covered separately
+// in tests/integration.test.ts, which injects a fake `fetch` instead.
 export function fakeModel(script: Array<string | Error>) {
   const calls: ChatMessage[][] = [];
   let i = 0;
-  const model: ModelClient & { calls: ChatMessage[][] } = {
+  const deps: TaskDeps & { calls: ChatMessage[][] } = {
     calls,
-    async complete(messages) {
+    async llm(messages) {
       calls.push(messages);
       const next = script[Math.min(i++, script.length - 1)];
       if (next instanceof Error) throw next;
-      return next;
+      return {
+        source: 'gemma',
+        text: next,
+        toolCalls: [],
+        model: 'google/gemma-4-26b-a4b-it',
+        provider: 'FakeProvider',
+        latencyMs: 1,
+        usage: null,
+        requestId: 'req_fake',
+      };
     },
   };
-  return model;
+  return deps;
 }
 
 // The golden-path founder, from the handover's AgriSmart walkthrough.

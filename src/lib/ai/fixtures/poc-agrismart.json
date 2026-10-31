@@ -1,0 +1,79 @@
+{
+  "plan": {
+    "objective": "Test whether phone-based leaf-disease screening can run at a small group of farms in this synthetic challenge.",
+    "scope": "Proposed field screening at a small number of farms, using agreed crop images and an agreed evaluation method.",
+    "milestones": [
+      {
+        "day": 0,
+        "action": "Discovery meeting to confirm the problem and the buyer requirements",
+        "owner": "joint"
+      },
+      {
+        "day": 14,
+        "action": "Data-access and consent confirmation for crop images",
+        "owner": "partner"
+      },
+      {
+        "day": 45,
+        "action": "Field screening run at agreed farms, with weekly review notes",
+        "owner": "startup"
+      },
+      {
+        "day": 75,
+        "action": "Joint review of results against the proposed success criteria",
+        "owner": "joint"
+      }
+    ],
+    "success_criteria": [
+      {
+        "metric": "Screening agreement with expert review on a sampled set of images",
+        "target": "Proposed target to be agreed before the run",
+        "validation_method": "Expert re-check of a sampled subset, agreed in advance"
+      }
+    ],
+    "preconditions": [
+      "Farmer consent for crop images",
+      "A named field contact at the partner"
+    ],
+    "ip_questions": [
+      "Who owns any improvements made to the model during the pilot?"
+    ],
+    "data_sharing_questions": [
+      "Which crop images may be used and stored, and for how long?"
+    ],
+    "liability_questions": [
+      "Who is responsible if a screening result leads to a wrong crop treatment?"
+    ],
+    "possible_conversion_to_paid": "Hypothesis only: a paid pilot could follow if the agreed criteria are met. This is not a promise.",
+    "roles_and_responsibilities": [
+      "Startup: provide the detection tool and a field workflow guide (proposed)",
+      "Partner: nominate farms and a field contact (proposed)"
+    ],
+    "budget_questions": [
+      "Is there a pilot budget, and who pays for field time?"
+    ],
+    "local_regulatory_checks": [
+      "Confirm with a qualified adviser whether agricultural or data rules apply in Indonesia."
+    ],
+    "assumptions": [
+      "Partner farms are willing to participate",
+      "Images can be collected lawfully"
+    ],
+    "next_action": "Hold the discovery meeting. No pilot work starts before the consent check.",
+    "status": "proposed",
+    "proposed_duration_days": 75,
+    "demand_id": "DEMO-CH-001"
+  },
+  "draft_only": true,
+  "model": "google/gemma-4-26b-a4b-it",
+  "notice": "Includes synthetic demo records. Scores are rule-based compatibility only, not funding or success probability.",
+  "review_notes": [],
+  "meta": {
+    "source": "fixture",
+    "model": "google/gemma-4-26b-a4b-it",
+    "provider": null,
+    "prompt_version": "poc-v2",
+    "latency_ms": 0,
+    "repaired": false
+  }
+}

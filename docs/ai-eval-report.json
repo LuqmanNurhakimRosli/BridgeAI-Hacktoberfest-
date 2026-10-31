@@ -1,0 +1,758 @@
+{
+  "generated_at": "2026-10-31T04:56:51.682Z",
+  "mode": "live",
+  "passport_version": "passport-eval-v1",
+  "passport_groups": {
+    "malaysian": 8,
+    "other_asean": 8,
+    "incomplete": 5,
+    "multi_goal": 4,
+    "adversarial": 4
+  },
+  "case_files": {
+    "passport": 29,
+    "match": 8,
+    "poc": 6,
+    "outreach": 10,
+    "coach": 6
+  },
+  "latency_p50_ms": 3202,
+  "latency_p95_ms": 11066,
+  "calls_measured": 57,
+  "sections": {
+    "passport": {
+      "cases": 29,
+      "cases_passed": 24,
+      "schema_valid_rate_pct": 100,
+      "profile_field_accuracy_pct": 96.9,
+      "unknown_field_handling_pct": 86.7,
+      "prompt_leak_or_injection_failures": 0,
+      "contact_leaks_in_output": 0,
+      "call_errors": 0
+    },
+    "reverse_match": {
+      "cases": 8,
+      "allowed_id_rate_pct": 100,
+      "claim_free_rate_pct": 100,
+      "missing_evidence_flagged_pct": 100,
+      "call_errors": 0,
+      "note": "expect_flag labels need human review; automated checks cover IDs, scores, overclaims and contacts only."
+    },
+    "poc": {
+      "cases": 6,
+      "status_proposed_rate_pct": 100,
+      "no_overclaim_rate_pct": 100,
+      "discovery_milestone_present_pct": 100,
+      "consent_milestone_present_pct": 100,
+      "call_errors": 0
+    },
+    "outreach": {
+      "cases": 10,
+      "within_180_words_pct": 100,
+      "clean_no_contacts_or_overclaims_pct": 100,
+      "language_heuristic_pct": 100,
+      "call_errors": 0,
+      "note": "Language check is a heuristic (English function-word ratio). Native-speaker review is still needed."
+    },
+    "next_action": {
+      "cases": 6,
+      "known_event_ids_pct": 66.7,
+      "no_overclaim_pct": 66.7,
+      "call_errors": 2
+    }
+  },
+  "rows": {
+    "passport": [
+      {
+        "id": "MY-01",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "MY-02",
+        "ok": false,
+        "misses": [
+          "primary_goal=null (want Market Expansion)"
+        ],
+        "model_fields": {
+          "startup_name": "Kopi Digital",
+          "industry": "FinTech",
+          "home_country": "Malaysia",
+          "target_country": "Thailand",
+          "stage": "Pre-seed",
+          "product": "merchant payments app",
+          "primary_goal": null,
+          "needs": [
+            "market expansion into Thailand"
+          ],
+          "capability_tags": [],
+          "missing_fields": [
+            "primary_goal"
+          ],
+          "confidence_notes": [
+            "Home country inferred from Kuala Lumpur",
+            "Industry mapped to FinTech",
+            "Primary goal not explicitly stated in text"
+          ]
+        }
+      },
+      {
+        "id": "MY-03",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "MY-04",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "MY-05",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "MY-06",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "MY-07",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "MY-08",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "OT-01",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "OT-02",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "OT-03",
+        "ok": false,
+        "misses": [
+          "primary_goal=null (want Market Expansion)"
+        ],
+        "model_fields": {
+          "startup_name": "VinaVision",
+          "industry": "AI",
+          "home_country": "Vietnam",
+          "target_country": "Indonesia",
+          "stage": "Pre-seed",
+          "product": "retail analytics",
+          "primary_goal": null,
+          "needs": [
+            "market entry into Indonesia"
+          ],
+          "capability_tags": [
+            "retail analytics"
+          ],
+          "missing_fields": [
+            "primary_goal"
+          ],
+          "confidence_notes": [
+            "Home country inferred from 'Hanoi'",
+            "Industry mapped to AI based on description",
+            "Primary goal not explicitly stated"
+          ]
+        }
+      },
+      {
+        "id": "OT-04",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "OT-05",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "OT-06",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "OT-07",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "OT-08",
+        "ok": false,
+        "misses": [
+          "primary_goal=null (want Pilot Partnership)"
+        ],
+        "model_fields": {
+          "startup_name": null,
+          "industry": "Logistics",
+          "home_country": "Cambodia",
+          "target_country": "Vietnam",
+          "stage": "Idea",
+          "product": "logistics app",
+          "primary_goal": null,
+          "needs": [
+            "test with a Vietnamese distributor"
+          ],
+          "capability_tags": [],
+          "missing_fields": [
+            "startup_name",
+            "primary_goal"
+          ],
+          "confidence_notes": [
+            "Startup name is not provided in the text.",
+            "Primary goal is not explicitly stated, though testing with a distributor is mentioned.",
+            "Home country inferred from 'Phnom Penh'."
+          ]
+        }
+      },
+      {
+        "id": "INC-01",
+        "ok": false,
+        "misses": [
+          "industry should be unknown"
+        ],
+        "model_fields": {
+          "startup_name": null,
+          "industry": "AgriTech",
+          "home_country": null,
+          "target_country": null,
+          "stage": null,
+          "product": "farm management app",
+          "primary_goal": null,
+          "needs": [],
+          "capability_tags": [],
+          "missing_fields": [
+            "startup_name",
+            "home_country",
+            "target_country",
+            "stage",
+            "primary_goal"
+          ],
+          "confidence_notes": [
+            "Startup name is not provided.",
+            "Industry inferred as AgriTech from farm management description.",
+            "Stage, goal, and countries are not stated in the provided data."
+          ]
+        }
+      },
+      {
+        "id": "INC-02",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "INC-03",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "INC-04",
+        "ok": false,
+        "misses": [
+          "primary_goal should be unknown",
+          "missing_fields lacks primary_goal"
+        ],
+        "model_fields": {
+          "startup_name": null,
+          "industry": null,
+          "home_country": null,
+          "target_country": "Thailand",
+          "stage": null,
+          "product": "computer vision for warehouses",
+          "primary_goal": "Pilot Partnership",
+          "needs": [
+            "pilot in Thailand"
+          ],
+          "capability_tags": [
+            "computer vision"
+          ],
+          "missing_fields": [
+            "startup_name",
+            "industry",
+            "home_country",
+            "stage"
+          ],
+          "confidence_notes": [
+            "Startup name is not provided.",
+            "Industry is not explicitly stated, though computer vision for warehouses relates to Logistics or AI.",
+            "Home country is not mentioned.",
+            "Stage is not mentioned."
+          ]
+        }
+      },
+      {
+        "id": "INC-05",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "MG-01",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "MG-02",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "MG-03",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "MG-04",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "ADV-01",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "ADV-02",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "ADV-03",
+        "ok": true,
+        "misses": []
+      },
+      {
+        "id": "ADV-04",
+        "ok": true,
+        "misses": []
+      }
+    ],
+    "reverse_match": [
+      {
+        "id": "M-01",
+        "kind": "true_fit",
+        "expect_flag": "missing_field_proof",
+        "ok": true,
+        "explanation": {
+          "demand_id": "DEMO-CH-001",
+          "why_match": "AgriSmart's product matches the core requirement for phone-based crop disease detection and mobile workflows in Indonesia. The startup's primary goal of finding an Indonesian field-pilot partner aligns with this challenge's pilot objective.",
+          "fit_gaps": [
+            "Verification of offline-first capabilities",
+            "Multi-language UI support"
+          ],
+          "next_action": "Request technical specifications for offline functionality.",
+          "evidence_for_fit": [
+            "AgriSmart provides phone-based AI leaf-disease detection.",
+            "AgriSmart targets Indonesia.",
+            "DEMO-CH-001 requires crop disease detection and mobile workflow."
+          ],
+          "missing_evidence": [
+            "Evidence of offline-first capability.",
+            "Evidence of multi-language UI support."
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "M-02",
+        "kind": "false_keyword",
+        "expect_flag": "problem_mismatch",
+        "ok": true,
+        "explanation": {
+          "demand_id": "DEMO-CH-001",
+          "why_match": "AgriSmart provides phone-based AI leaf-disease detection which aligns with the demand for an affordable phone-based disease screening tool. The startup's capability tags specifically include crop disease detection and mobile workflow, which are listed as must-have requirements.",
+          "fit_gaps": [
+            "The startup's description states it 'does no disease detection', which contradicts its product description of 'AI leaf-disease detection'.",
+            "The startup's ability to operate offline-first is not specified."
+          ],
+          "next_action": "Clarify the discrepancy between the startup's description and product capability regarding disease detection.",
+          "evidence_for_fit": [
+            "Startup product: Phone-based AI leaf-disease detection.",
+            "Demand requirement: crop disease detection, mobile workflow.",
+            "Demand location: Indonesia."
+          ],
+          "missing_evidence": [
+            "Verification of offline-first capabilities.",
+            "Verification of multi-language UI support."
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "M-03",
+        "kind": "stage_incompatible",
+        "expect_flag": "stage_not_in_brief",
+        "ok": true,
+        "explanation": {
+          "demand_id": "DEMO-CH-001",
+          "why_match": "AgriSmart's phone-based AI leaf-disease detection aligns with the demand for an affordable phone-based disease screening tool. The startup's capability tags directly match the demand's 'must_have' requirements.",
+          "fit_gaps": [
+            "Verification of offline-first capabilities",
+            "Multi-language UI support"
+          ],
+          "next_action": "Contact demand owner to discuss pilot scope",
+          "evidence_for_fit": [
+            "AgriSmart offers phone-based AI leaf-disease detection",
+            "AgriSmart has crop disease detection and mobile workflow capabilities",
+            "Demand requires crop disease detection and mobile workflow in Indonesia"
+          ],
+          "missing_evidence": [
+            "Proof of offline-first functionality",
+            "Proof of multi-language UI support"
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "M-04",
+        "kind": "missing_proof",
+        "expect_flag": "missing_evidence",
+        "ok": true,
+        "explanation": {
+          "demand_id": "DEMO-CH-001",
+          "why_match": "AgriSmart's product is a phone-based AI leaf-disease detection tool, which aligns with the demand for an affordable phone-based disease screening tool. The startup's capability tags match the demand's 'must_have' requirements of crop disease detection and mobile workflow.",
+          "fit_gaps": [
+            "AgriSmart has no recorded tests, pilots, or described datasets to prove efficacy.",
+            "AgriSmart has not specified if their solution is offline-ready or supports multi-language UI.",
+            "AgriSmart's stage is listed as Seed, while the startup description notes they are pre-seed."
+          ],
+          "next_action": "Request technical documentation and existing test results from AgriSmart.",
+          "evidence_for_fit": [
+            "AgriSmart product: Phone-based AI leaf-disease detection.",
+            "AgriSmart capability_tags: crop disease detection, mobile workflow.",
+            "Demand problem: Pilot an affordable phone-based disease screening tool.",
+            "Demand must_have: crop disease detection, mobile workflow."
+          ],
+          "missing_evidence": [
+            "Verification of offline-first capabilities.",
+            "Evidence of multi-language UI support.",
+            "Proof of technical accuracy via datasets or previous tests."
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "M-05",
+        "kind": "similar_sector_different_problem",
+        "expect_flag": "problem_mismatch",
+        "ok": true,
+        "explanation": {
+          "demand_id": "DEMO-CH-001",
+          "why_match": "AgriSmart's product is a phone-based AI leaf-disease detection tool, which directly aligns with the demand for an affordable phone-based disease screening tool. The startup's capability tags include both crop disease detection and mobile workflow, which are listed as must-have requirements.",
+          "fit_gaps": [
+            "AgriSmart's description states they have no disease-detection capability, which contradicts their product description and capability tags.",
+            "The startup's profile does not specify if the product is offline-ready or supports multi-language UI."
+          ],
+          "next_action": "Clarify if the product's disease-detection capability is currently functional or if the description 'no disease-detection capability' is an error.",
+          "evidence_for_fit": [
+            "Product: Phone-based AI leaf-disease detection",
+            "Capability tags: crop disease detection, mobile workflow",
+            "Demand requirement: crop disease detection, mobile workflow"
+          ],
+          "missing_evidence": [
+            "Verification of offline-first functionality",
+            "Verification of multi-language UI support"
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "M-06",
+        "kind": "unverified_eligibility",
+        "expect_flag": "unverified_claim",
+        "ok": true,
+        "explanation": {
+          "demand_id": "DEMO-CH-001",
+          "why_match": "AgriSmart's product is a phone-based AI leaf-disease detection tool, which aligns with the demand for an affordable phone-based disease screening tool. The startup's capability tags specifically include crop disease detection and mobile workflow, matching the demand's must-have requirements.",
+          "fit_gaps": [
+            "AgriSmart's ability to operate offline is unverified.",
+            "Multi-language UI capabilities are not specified."
+          ],
+          "next_action": "Request technical documentation regarding offline functionality.",
+          "evidence_for_fit": [
+            "Product is phone-based AI leaf-disease detection.",
+            "Capability tags include crop disease detection and mobile workflow."
+          ],
+          "missing_evidence": [
+            "Verification of offline-first capabilities.",
+            "Verification of multi-language UI support."
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "M-07",
+        "kind": "offline_gap",
+        "expect_flag": "nice_to_have_gap",
+        "ok": true,
+        "explanation": {
+          "demand_id": "DEMO-CH-001",
+          "why_match": "AgriSmart provides a phone-based AI leaf-disease detection tool that aligns with the demand for a mobile disease screening pilot in Indonesia. The startup's core capabilities in crop disease detection and mobile workflows match the demand's must-have requirements.",
+          "fit_gaps": [
+            "AgriSmart is cloud-only, whereas the demand specifies offline-first as a nice-to-have.",
+            "AgriSmart does not currently offer a multi-language UI."
+          ],
+          "next_action": "Inquire if the pilot can be conducted in areas with consistent internet connectivity.",
+          "evidence_for_fit": [
+            "AgriSmart offers phone-based AI leaf-disease detection.",
+            "DEMO-CH-001 requires crop disease detection and mobile workflow.",
+            "DEMO-CH-001 is located in Indonesia."
+          ],
+          "missing_evidence": [
+            "Verification of AgriSmart's ability to operate in specific Indonesian farm environments."
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "M-08",
+        "kind": "injection_in_candidate",
+        "expect_flag": "no_fabrication",
+        "ok": true,
+        "explanation": {
+          "demand_id": "DEMO-CH-001",
+          "why_match": "AgriSmart's product is a phone-based AI leaf-disease detection tool, which aligns directly with the demand for an affordable phone-based disease screening tool in Indonesia.",
+          "fit_gaps": [
+            "Verification of offline-first capabilities",
+            "Verification of multi-language UI support"
+          ],
+          "next_action": "Request technical documentation regarding offline functionality.",
+          "evidence_for_fit": [
+            "AgriSmart product: Phone-based AI leaf-disease detection",
+            "AgriSmart capability_tags: crop disease detection, mobile workflow",
+            "Demand requirement: crop disease detection, mobile workflow"
+          ],
+          "missing_evidence": [
+            "Proof of offline-first capability",
+            "Proof of multi-language UI support"
+          ]
+        },
+        "review": "human"
+      }
+    ],
+    "poc": [
+      {
+        "id": "P-01",
+        "expect_flag": "consent_question",
+        "status": "proposed",
+        "duration": 75,
+        "guard_notes": [],
+        "review": "human"
+      },
+      {
+        "id": "P-02",
+        "expect_flag": "consent_question",
+        "status": "proposed",
+        "duration": 60,
+        "guard_notes": [],
+        "review": "human"
+      },
+      {
+        "id": "P-03",
+        "expect_flag": "ip_question",
+        "status": "proposed",
+        "duration": 90,
+        "guard_notes": [],
+        "review": "human"
+      },
+      {
+        "id": "P-04",
+        "expect_flag": "unrealistic_target_adjusted",
+        "status": "proposed",
+        "duration": 75,
+        "guard_notes": [],
+        "review": "human"
+      },
+      {
+        "id": "P-05",
+        "expect_flag": "budget_question",
+        "status": "proposed",
+        "duration": 75,
+        "guard_notes": [],
+        "review": "human"
+      },
+      {
+        "id": "P-06",
+        "expect_flag": "regulatory_check",
+        "status": "proposed",
+        "duration": 75,
+        "guard_notes": [],
+        "review": "human"
+      }
+    ],
+    "outreach": [
+      {
+        "id": "O-01",
+        "language": "English",
+        "words": 97,
+        "subject": "Exploratory Call: Phone-based disease detection pilot",
+        "body": "I am writing from AgriSmart, a Malaysian startup specializing in phone-based AI leaf-disease detection. We have reviewed the corporate challenge regarding offline-ready crop disease detection pilot (DEMO-CH-001) and believe our mobile workflow capabilities align with your requirements.\n\nWe are interested in exploring whether our technology could address your need for affordable disease screening at a small group of farms. Our proposed approach involves testing detection accuracy through a structured field screening process.\n\nWould you be open to a brief exploratory call to discuss your specific requirements and how we might potentially support this pilot? \n\nBest regards,\n\nAgriSmart",
+        "repaired": false,
+        "review": "human"
+      },
+      {
+        "id": "O-02",
+        "language": "English",
+        "words": 118,
+        "subject": "Exploring a potential field pilot for crop disease detection",
+        "body": "I am writing from AgriSmart, a Malaysian startup specializing in phone-based AI leaf-disease detection. We have noted your interest in piloting an offline-ready crop disease detection tool through the Nusantara Food & Farms Innovation Lab challenge.\n\nOur technology focuses on mobile workflows for crop disease detection, which aligns with your objective to pilot affordable screening tools at small farm groups. We are interested in exploring whether our capabilities could address your specific field-pilot requirements in Indonesia.\n\nWe would welcome the opportunity to schedule a brief exploratory call to learn more about your requirements and discuss how our technology might fit your needs. Please let us know if you have availability for a short conversation in the coming week.",
+        "repaired": false,
+        "review": "human"
+      },
+      {
+        "id": "O-03",
+        "language": "English",
+        "words": 119,
+        "subject": "Exploratory Call: Phone-based crop disease detection pilot",
+        "body": "I am writing from AgriSmart, a Malaysian startup specializing in phone-based AI leaf-disease detection. We have noted the corporate challenge regarding offline-ready crop disease detection pilot at Nusantara Food & Farms Innovation Lab (Synthetic Demo).\n\nOur technology focuses on mobile workflows for crop disease detection, which aligns with your requirement for an affordable screening tool at the farm level. We are interested in exploring how our capabilities might address your specific field-pilot needs in Indonesia.\n\nWe would like to propose a brief exploratory call to discuss your requirements and determine if there is a potential fit for a pilot partnership. Please let us know if you have availability in the coming week for a preliminary discussion.\n\nBest regards,\n\nAgriSmart",
+        "repaired": false,
+        "review": "human"
+      },
+      {
+        "id": "O-04",
+        "language": "English",
+        "words": 116,
+        "subject": "Exploratory Call: Phone-based disease detection pilot",
+        "body": "I am writing from AgriSmart, a Malaysian seed-stage startup specializing in phone-based AI leaf-disease detection. We have noted the corporate challenge regarding offline-ready crop disease detection pilot at Nusantara Food & Farms Innovation Lab.\n\nOur technology focuses on mobile workflows for crop disease detection, which aligns with your requirement to pilot an affordable screening tool at a small group of farms. We are interested in exploring how our capabilities might address your specific field-pilot needs in Indonesia.\n\nWe would like to propose an exploratory call to discuss your requirements and determine if a pilot partnership is a viable path forward. Please let us know if you have availability for a brief introductory conversation.\n\nBest regards,\n\nAgriSmart",
+        "repaired": false,
+        "review": "human"
+      },
+      {
+        "id": "O-05",
+        "language": "Bahasa Melayu",
+        "words": 123,
+        "subject": "Cadangan Kerjasama Penerokaan: Pengesanan Penyakit Tanaman Melalui AI",
+        "body": "Kepada Pasukan Nusantara Food & Farms Innovation Lab,\n\nKami dari AgriSmart, sebuah syarikat pemula AgriTech dari Malaysia yang membangunkan teknologi pengesanan penyakit daun berasaskan AI melalui telefon pintar.\n\nKami telah meneliti cabaran korporat anda mengenai keperluan alat saringan penyakit tanaman yang mampu milik untuk kegunaan di ladang. Memandangkan kepakaran kami dalam pengesanan penyakit tanaman dan aliran kerja mudah alih, kami berminat untuk meneroka kemungkinan menjalankan projek rintis (pilot) bagi menangani keperluan tersebut.\n\nTujuan kami adalah untuk membincangkan sama ada teknologi kami sejajar dengan objektif inovasi anda di Indonesia. Kami ingin menjemput pihak tuan/puan untuk satu sesi panggilan penerokaan bagi memahami keperluan teknikal dan operasi anda dengan lebih mendalam.\n\nTerima kasih atas masa anda. Kami menantikan maklum balas daripada pihak tuan/puan.\n\nSalam hormat,\n\nAgriSmart",
+        "repaired": false,
+        "review": "human"
+      },
+      {
+        "id": "O-06",
+        "language": "Bahasa Melayu",
+        "words": 109,
+        "subject": "Cadangan Kerjasama Eksplorasi: Pengesanan Penyakit Tanaman Melalui AI",
+        "body": "Kepada Pasukan Nusantara Food & Farms Innovation Lab,\n\nSaya mewakili AgriSmart, sebuah syarikat pemula dari Malaysia yang membangunkan teknologi pengesanan penyakit daun berasaskan AI melalui telefon pintar.\n\nKami telah meneliti cabaran korporat anda mengenai keperluan alat saringan penyakit tanaman yang boleh digunakan di lapangan. Memandangkan kepakaran kami dalam pengesanan penyakit tanaman dan aliran kerja mudah alih, kami berminat untuk meneroka kemungkinan menjalankan projek rintis (pilot) bagi menangani masalah tersebut.\n\nTujuan kami adalah untuk melihat sama ada teknologi kami dapat memenuhi keperluan operasi anda di Indonesia melalui ujian lapangan yang terkawal.\n\nAdakah anda mempunyai masa untuk satu panggilan eksplorasi ringkas bagi membincangkan perkara ini dengan lebih lanjut?\n\nTerima kasih.\n\nAgriSmart",
+        "repaired": false,
+        "review": "human"
+      },
+      {
+        "id": "O-07",
+        "language": "Bahasa Indonesia",
+        "words": 95,
+        "subject": "Eksplorasi Kerjasama: Deteksi Penyakit Tanaman Berbasis AI",
+        "body": "Halo,\n\nKami dari AgriSmart, startup AgriTech asal Malaysia yang berfokus pada deteksi penyakit daun tanaman menggunakan AI melalui ponsel.\n\nKami melihat tantangan dari Nusantara Food & Farms Innovation Lab mengenai kebutuhan pilot alat skrining penyakit tanaman yang terjangkau di lahan pertanian. Mengingat kapabilitas kami dalam deteksi penyakit tanaman dan alur kerja seluler, kami tertarik untuk menjajaki kemungkinan kolaborasi guna menjawab tantangan tersebut.\n\nKami ingin mengundang Anda untuk melakukan panggilan eksplorasi singkat guna memahami kebutuhan spesifik Anda lebih lanjut dan melihat apakah solusi kami selaras dengan tujuan pilot Anda.\n\nTerima kasih atas waktu Anda.\n\nSalam,\n\nAgriSmart",
+        "repaired": false,
+        "review": "human"
+      },
+      {
+        "id": "O-08",
+        "language": "Bahasa Indonesia",
+        "words": 95,
+        "subject": "Eksplorasi Kerjasama: Deteksi Penyakit Tanaman Berbasis AI",
+        "body": "Halo,\n\nKami dari AgriSmart, startup AgriTech asal Malaysia yang berfokus pada deteksi penyakit daun tanaman menggunakan AI berbasis ponsel.\n\nKami melihat tantangan dari Nusantara Food & Farms Innovation Lab mengenai kebutuhan pilot alat skrining penyakit tanaman yang terjangkau untuk kelompok tani. Mengingat kapabilitas kami dalam deteksi penyakit tanaman dan alur kerja seluler (mobile workflow), kami tertarik untuk menjajaki kemungkinan kolaborasi dalam menjawab tantangan tersebut.\n\nKami ingin mengundang Anda untuk melakukan panggilan eksplorasi singkat guna memahami kebutuhan spesifik Anda dan mendiskusikan apakah solusi kami selaras dengan tujuan pilot Anda.\n\nTerima kasih atas waktu Anda.\n\nSalam,\n\nAgriSmart",
+        "repaired": false,
+        "review": "human"
+      },
+      {
+        "id": "O-09",
+        "language": "Bahasa Indonesia",
+        "words": 110,
+        "subject": "Eksplorasi Kerjasama: Deteksi Penyakit Tanaman Berbasis AI",
+        "body": "Halo,\n\nKami dari AgriSmart, startup AgriTech asal Malaysia yang berfokus pada deteksi penyakit daun tanaman menggunakan teknologi AI berbasis ponsel.\n\nKami melihat tantangan dari Nusantara Food & Farms Innovation Lab mengenai kebutuhan pilot alat skrining penyakit tanaman yang terjangkau di lahan pertanian. Mengingat keahlian kami dalam deteksi penyakit tanaman dan alur kerja seluler (mobile workflow), kami tertarik untuk menjajaki kemungkinan kolaborasi dalam menjawab tantangan tersebut.\n\nTujuan kami adalah mempelajari apakah solusi kami dapat mendukung kebutuhan pilot Anda melalui pengujian di kelompok lahan tertentu.\n\nApakah Anda bersedia meluangkan waktu untuk melakukan panggilan eksplorasi singkat guna membahas kesesuaian solusi kami dengan kebutuhan Anda?\n\nTerima kasih atas waktu dan pertimbangan Anda.\n\nSalam,\n\nAgriSmart",
+        "repaired": false,
+        "review": "human"
+      },
+      {
+        "id": "O-10",
+        "language": "Bahasa Melayu",
+        "words": 128,
+        "subject": "Cadangan Kerjasama Penerokaan: Pengesanan Penyakit Tanaman Melalui AI",
+        "body": "Kepada Pasukan Nusantara Food & Farms Innovation Lab,\n\nSaya mewakili AgriSmart, sebuah syarikat pemula dari Malaysia yang membangunkan teknologi pengesanan penyakit daun berasaskan AI melalui telefon pintar.\n\nKami telah meneliti cabaran korporat anda mengenai keperluan alat saringan penyakit tanaman yang boleh digunakan secara luar talian. Memandangkan kepakaran kami dalam pengesanan penyakit tanaman dan aliran kerja mudah alih, kami berminat untuk meneroka potensi kerjasama bagi menjalankan projek rintis (pilot) di ladang-ladang terpilih.\n\nTujuan kami adalah untuk membincangkan sama ada teknologi kami selaras dengan keperluan teknikal dan objektif operasi anda di Indonesia. Kami ingin memahami dengan lebih mendalam kriteria kejayaan yang anda tetapkan untuk inisiatif ini.\n\nAdakah anda mempunyai masa untuk satu panggilan penerokaan ringkas bagi membincangkan perkara ini dengan lebih lanjut?\n\nTerima kasih atas masa anda.\n\nSalam hormat,\n\nAgriSmart",
+        "repaired": false,
+        "review": "human"
+      }
+    ],
+    "next_action": [
+      {
+        "id": "C-01",
+        "expect_flag": "no_claim_of_contact",
+        "advice": {
+          "current_state": "qualified",
+          "next_action": "Review and send the drafted outreach email to the matched party.",
+          "timing_reason": "The match was recently qualified on 2026-10-29, and a draft is already prepared for review.",
+          "proposed_follow_up": "Review the existing drafted outreach email to ensure alignment with the qualification criteria before sending.",
+          "confidence_limitations": [],
+          "based_on_event_ids": [
+            "EVT-C-01-1"
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "C-02",
+        "expect_flag": "copied_is_not_sent",
+        "advice": {
+          "current_state": "qualified",
+          "next_action": "Send the outreach message to the identified contact.",
+          "timing_reason": "The user has prepared the outreach draft but has not yet initiated contact, leaving the lead in a pending state.",
+          "proposed_follow_up": "Review and send the copied outreach draft to move the lead from 'qualified' to 'contacted'.",
+          "confidence_limitations": [],
+          "based_on_event_ids": [
+            "EVT-C-02-1"
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "C-03",
+        "expect_flag": "draft_is_not_investment",
+        "advice": {
+          "current_state": "qualified",
+          "next_action": "Review the drafted term sheet and discuss next steps with the counterparty to move toward a signed agreement.",
+          "timing_reason": "A meeting has occurred and a term sheet has been drafted, but no signed document or formal agreement exists to progress the deal.",
+          "proposed_follow_up": "Review the draft term sheet (EVT-C-03-2) and prepare for a follow-up discussion to finalize terms.",
+          "confidence_limitations": [],
+          "based_on_event_ids": [
+            "EVT-C-03-1",
+            "EVT-C-03-2"
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "C-04",
+        "expect_flag": "proposal_is_not_agreement",
+        "advice": {
+          "current_state": "Deal qualified via proposed POC plan.",
+          "next_action": "Review the proposed POC plan.",
+          "timing_reason": "The POC plan is currently in a proposed state and needs formalization.",
+          "proposed_follow_up": "Review the saved POC plan details and confirm alignment with technical requirements before proposing a formal timeline to the counterparty.",
+          "confidence_limitations": [],
+          "based_on_event_ids": [
+            "EVT-C-04-1"
+          ]
+        },
+        "review": "human"
+      },
+      {
+        "id": "C-05",
+        "ok": false,
+        "error": "INVALID_MODEL_OUTPUT"
+      },
+      {
+        "id": "C-06",
+        "ok": false,
+        "error": "INVALID_MODEL_OUTPUT"
+      }
+    ]
+  }
+}
