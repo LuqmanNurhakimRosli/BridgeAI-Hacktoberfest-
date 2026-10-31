@@ -1,0 +1,50 @@
+{
+  "voice": "af_heart",
+  "speed": 1.05,
+  "scenes": [
+    {
+      "id": "problem",
+      "text": "Across Southeast Asia, startups are building exactly what big companies need. But landing a corporate pilot in another country is slow, opaque, and mostly luck. Directories list opportunities. Nobody helps you close them."
+    },
+    {
+      "id": "solution",
+      "text": "Meet BridgeAI. Discover ASEAN corporate challenges, understand your fit, propose a pilot, and follow through. All from your phone."
+    },
+    {
+      "id": "profile",
+      "text": "It starts with a few plain sentences. Describe your startup, and Gemma 4, running on OpenRouter, fills in your profile: sector, stage, home and target market. Anything it can't confirm, it flags instead of guessing."
+    },
+    {
+      "id": "discover",
+      "text": "BridgeAI then ranks corporate challenges and investor theses against your profile. Every card shows a rule-based fit score, how many must-haves you cover, and a clear demo-data label. Filters live in a simple bottom sheet."
+    },
+    {
+      "id": "match",
+      "text": "Open a match to see why it fits, what is still unknown, and exactly how the score is worked out across five weighted checks. It's a fit score. Never a funding probability."
+    },
+    {
+      "id": "pilot",
+      "text": "One tap drafts a seventy-five-day pilot plan: the goal, a four-phase timeline, success measures, and the legal questions to settle first. It even writes your first message in English, Bahasa Melayu, or Bahasa Indonesia. Every plan is clearly marked as a draft."
+    },
+    {
+      "id": "deals",
+      "text": "Save it, and the partner lands in your deals with a reminder. The pipeline answers one question: what needs your attention today? Stages only move when you record what actually happened. AI never advances a deal for you."
+    },
+    {
+      "id": "outcomes",
+      "text": "Outcomes show honest numbers with real denominators, and an investor readiness check helps you prepare for what comes next."
+    },
+    {
+      "id": "unique",
+      "text": "What makes BridgeAI different is honesty by design. Demand-first matching, explainable scores, human-confirmed progress, and voice briefings powered by Kokoro."
+    },
+    {
+      "id": "stack",
+      "text": "It's built with Next.js 15, React 19, TypeScript and Tailwind CSS 4. Validated with Zod, tested with Vitest, powered by Gemma 4 and Kokoro on OpenRouter, and shipped as a mobile-first web app on Vercel."
+    },
+    {
+      "id": "outro",
+      "text": "BridgeAI. From discovery to deal, across ASEAN."
+    }
+  ]
+}

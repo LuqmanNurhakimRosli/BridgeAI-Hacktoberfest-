@@ -18,7 +18,7 @@ describe('Task 5 & 6: DemandBoard, ReverseMatchDetail & PilotPlanEditor', () => 
   const rankedMatches = rankDemandMatches(AGRISMART_PRESET, briefs);
   const topMatch = scoreDemandMatch(AGRISMART_PRESET, briefs[0]);
 
-  it('renders DemandBoard with verbatim AI banner, search/filter pills, provenance badges, and popular sectors', () => {
+  it('renders DemandBoard with ranked cards, honest fit label, demo provenance and actions', () => {
     const html = renderToStaticMarkup(
       <DemandBoard
         profile={AGRISMART_PRESET}
@@ -28,19 +28,17 @@ describe('Task 5 & 6: DemandBoard, ReverseMatchDetail & PilotPlanEditor', () => 
       />
     );
 
-    expect(html).toContain(
-      `Based on your confirmed Startup Passport (AgriSmart), BridgeAI evaluated ${rankedMatches.length} ASEAN corporate challenges and investor theses using deterministic hard-eligibility gates + Gemma 4 grounded fit analysis.`
-    );
-    expect(html).toContain('+ Post Corporate Challenge / VC Thesis (P1 Demo Modal)');
+    expect(html).toContain(`${rankedMatches.length} challenges`);
+    expect(html).toContain('ranked for AgriSmart');
+    expect(html).toContain('Fit score is rule-based, not a funding probability');
+    expect(html).toContain('Post a challenge');
     expect(html).toContain('Nusantara Food &amp; Farms Innovation Lab');
-    expect(html).toContain('🧪 Synthetic Demo Record — Illustrative Only');
-    expect(html).toContain('Rule-based fit, not funding probability');
-    expect(html).toContain('View Match Intelligence →');
-    expect(html).toContain('✨ Create 75-Day POC Plan');
-    expect(html).toContain('Popular Sectors');
+    expect(html).toContain('Demo data');
+    expect(html).toContain('Draft pilot plan');
+    expect(html).toContain('must-haves');
   });
 
-  it('renders ReverseMatchDetail with circular compatibility gauge, V2 rubric disclaimer, and 4 intelligence cards', () => {
+  it('renders ReverseMatchDetail with fit score, disclaimer, reasons, unknowns and one primary action', () => {
     const html = renderToStaticMarkup(
       <ReverseMatchDetail
         profile={AGRISMART_PRESET}
@@ -52,19 +50,17 @@ describe('Task 5 & 6: DemandBoard, ReverseMatchDetail & PilotPlanEditor', () => 
       />
     );
 
-    expect(html).toContain('← Back to Challenges Board');
-    expect(html).toContain(`${topMatch.score}%`);
-    expect(html).toContain(
-      'Deterministic 30/30/15/15/10 Rubric Score — Not a guarantee of selection or funding'
-    );
-    expect(html).toContain('✨ Why it matches');
-    expect(html).toContain('💡 Potential collaboration');
-    expect(html).toContain('⚠️ Risks and missing information');
-    expect(html).toContain('☑️ Recommended next step');
-    expect(html).toContain('Key Information');
-    expect(html).toContain('Sample Reference Materials (Synthetic Demo Metadata)');
-    expect(html).toContain('🔖 Save as Qualified Deal');
-    expect(html).toContain('✨ Create 75-Day POC Plan');
+    expect(html).toContain('All challenges');
+    expect(html).toContain(`>${topMatch.score}<`);
+    expect(html).toContain('It is not a funding probability or a promise of selection.');
+    expect(html).toContain('Why it fits');
+    expect(html).toContain('Suggested next step');
+    expect(html).toContain('What is still unknown');
+    expect(html).toContain('How the score is worked out');
+    expect(html).toContain('What a pilot could look like');
+    expect(html).toContain('Challenge requirements');
+    expect(html).toContain('Save to deals');
+    expect(html).toContain('Draft pilot plan');
   });
 
   it('builds a valid 75-day proposed POCPlan via buildDefaultPocPlan and generates <=180-word multilingual outreach drafts', () => {
@@ -92,7 +88,7 @@ describe('Task 5 & 6: DemandBoard, ReverseMatchDetail & PilotPlanEditor', () => 
     }
   });
 
-  it('renders PilotPlanEditor with mandatory V2 proposed banner, grant honesty card, 4 phases, and 5 governance questions', () => {
+  it('renders PilotPlanEditor with draft-only banner, grant honesty note, 4 phases and save action', () => {
     const html = renderToStaticMarkup(
       <PilotPlanEditor
         profile={AGRISMART_PRESET}
@@ -102,31 +98,14 @@ describe('Task 5 & 6: DemandBoard, ReverseMatchDetail & PilotPlanEditor', () => 
       />
     );
 
-    expect(html).toContain(
-      '✨ PROPOSED 75-Day Cross-Border Pilot Plan — Draft for Discussion Only (Not Signed, Funded, or Legally Binding)'
-    );
-    expect(html).toContain(
-      'Grant &amp; Co-Funding Notice: External grants or corporate co-funding are NOT guaranteed by BridgeAI. Verify official programme windows before budgeting.'
-    );
-    expect(html).toContain('Questions to Resolve Before Starting Pilot');
-    expect(html).toContain(
-      'Confirm cross-border data sharing &amp; farm/user consent protocol'
-    );
-    expect(html).toContain(
-      'Confirm foreground vs background IP ownership of model weights &amp; field data'
-    );
-    expect(html).toContain(
-      'Confirm field-trial liability boundaries &amp; operational safety owner'
-    );
-    expect(html).toContain(
-      'Confirm local sector regulatory / import checks in target country'
-    );
-    expect(html).toContain(
-      'Confirm post-POC commercial conversion criteria &amp; procurement path'
-    );
-    expect(html).toContain('📋 Copy Outreach Draft');
-    expect(html).toContain(
-      '💾 Save Qualified Deal &amp; 75-Day POC Draft to Deal Tracker →'
-    );
+    expect(html).toContain('Draft for discussion.');
+    expect(html).toContain('It is not signed, funded or legally binding.');
+    expect(html).toContain('Grants and co-funding are not guaranteed.');
+    expect(html).toContain('Discovery &amp; Scoping');
+    expect(html).toContain('Joint Evaluation &amp; Pay/No-Pay Decision');
+    expect(html).toContain('poc-phase-card-4');
+    expect(html).toContain('Questions');
+    expect(html).toContain('Message');
+    expect(html).toContain('Save plan to deals');
   });
 });

@@ -1,27 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  ArrowLeft,
-  Sparkles,
-  Lightbulb,
-  AlertTriangle,
-  CheckSquare,
-  CheckCircle2,
-  ChevronDown,
-  ChevronUp,
-  Building2,
-  FileText,
-  ShieldCheck,
-  BookmarkCheck,
-  Bookmark,
-  Info,
-  Lock,
-} from 'lucide-react';
+import React from 'react';
+import { Bookmark, BookmarkCheck, CheckCircle2, ChevronDown, CircleAlert, FileText, Sparkles } from 'lucide-react';
 import type { ReverseMatch, StartupProfile } from '@/types';
 import { AiSourceBadge, ProvenanceBadge } from './ProvenanceBadge';
 import { KokoroTtsButton } from './KokoroTtsButton';
-import { formatBudgetPill, getCountryFlag } from './DemandBoard';
+import { DEMAND_KIND_LABEL, eligibilityCopy } from './DemandBoard';
+import { BackLink, Button, Chip, FitMeter, Panel, countryCode, formatMoneyRange } from './ui';
 
 export interface ReverseMatchDetailProps {
   profile: StartupProfile;
@@ -30,6 +15,31 @@ export interface ReverseMatchDetailProps {
   onOpenPocBuilder: (match: ReverseMatch) => void;
   onSaveQualifiedDeal: (match: ReverseMatch) => void;
   isDealSaved: boolean;
+}
+
+function Disclosure({
+  title,
+  summary,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  summary?: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <details open={defaultOpen} className="group rounded-2xl bg-surface shadow-card">
+      <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 sm:px-5 [&::-webkit-details-marker]:hidden">
+        <span>
+          <span className="block text-[15px] font-bold text-ink">{title}</span>
+          {summary ? <span className="block text-sm text-muted">{summary}</span> : null}
+        </span>
+        <ChevronDown className="h-5 w-5 shrink-0 text-muted transition-transform group-open:rotate-180" aria-hidden="true" />
+      </summary>
+      <div className="border-t border-line px-4 py-4 text-sm leading-relaxed text-ink sm:px-5">{children}</div>
+    </details>
+  );
 }
 
 export function ReverseMatchDetail({
@@ -41,68 +51,26 @@ export function ReverseMatchDetail({
   isDealSaved,
 }: ReverseMatchDetailProps) {
   const { demand } = match;
+  const eligibility = eligibilityCopy(match);
+  const money = formatMoneyRange(demand.budget_range);
+  const startupName = profile.startup_name || 'Your startup';
 
-  // All 4 intelligence cards open by default for immediate inspection + collapsible toggle
-  const [openSections, setOpenSections] = useState<{
-    why: boolean;
-    collab: boolean;
-    risks: boolean;
-    next: boolean;
-  }>({
-    why: true,
-    collab: true,
-    risks: true,
-    next: true,
-  });
-
-  const toggleSection = (key: keyof typeof openSections) => {
-    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  // SVG circular gauge geometry
-  const radius = 50;
-  const circumference = 2 * Math.PI * radius;
-  const clampedScore = Math.max(0, Math.min(100, match.score));
-  const strokeDashoffset =
-    circumference - (clampedScore / 100) * circumference;
-
-  const matchTierLabel =
-    clampedScore >= 80
-      ? 'Strong Match'
-      : clampedScore >= 60
-      ? 'Qualified Fit (With Unknowns)'
-      : 'Exploratory Fit';
-
-  const whyMatchText =
+  const whyText =
     match.ai_analysis?.why_match ||
-    `${profile.startup_name || 'Your startup'} aligns with ${demand.buyer_name}'s "${demand.title}" brief across ${
-      match.reasons.join('; ') || 'core sector and stage criteria'
-    }.`;
-
-  const potentialCollaborationText =
+    `${startupName} lines up with ${demand.buyer_name} on ${match.reasons.slice(0, 2).join(' and ') || 'sector and stage'}.`;
+  const collaborationText =
     match.ai_analysis?.potential_collaboration ||
-    `Hypothetical exploratory 75-day pilot in ${demand.country} validating ${demand.must_have.join(
-      ' and '
-    )} prior to any commercial procurement commitment.`;
-
-  const combinedRisksAndUnknowns = Array.from(
-    new Set([
-      ...(match.ai_analysis?.fit_gaps || []),
-      ...(match.unknowns || []),
-    ])
-  );
-
-  const nextActionText =
+    `A short exploratory pilot in ${demand.country} to test ${demand.must_have.join(' and ')} before any purchase decision.`;
+  const nextText =
     match.ai_analysis?.next_action ||
-    `Schedule an exploratory scoping call with ${demand.buyer_name} to verify pilot test protocol, offline readiness, and field data consent.`;
+    `Book a scoping call with ${demand.buyer_name} to agree the test plan, data consent and what success looks like.`;
+  const risks = Array.from(new Set([...(match.ai_analysis?.fit_gaps || []), ...(match.unknowns || [])]));
 
-  const rubricChecklist = [
+  const breakdown = [
     {
-      label: 'Sector/problem relevance',
-      weight: '30 pts',
-      detail:
-        match.reasons.find((r) => r.toLowerCase().includes('sector')) ||
-        `${profile.industry || 'Unconfirmed'} vs ${demand.industry}`,
+      label: 'Sector and problem',
+      points: 30,
+      detail: `${profile.industry || 'Your sector is not set'} compared with ${demand.industry}`,
       passed: Boolean(
         profile.industry &&
           (profile.industry.toLowerCase() === demand.industry.toLowerCase() ||
@@ -110,572 +78,203 @@ export function ReverseMatchDetail({
       ),
     },
     {
-      label: 'Must-have coverage',
-      weight: '30 pts',
-      detail:
-        match.reasons.find((r) => r.toLowerCase().includes('must-have')) ||
-        `Required: ${demand.must_have.join(', ')}`,
-      passed: !match.unknowns.some((u) =>
-        u.toLowerCase().includes('must-have not yet evidenced')
-      ),
+      label: 'Must-have skills',
+      points: 30,
+      detail: demand.must_have.join(', '),
+      passed: !match.unknowns.some((u) => u.toLowerCase().includes('must-have not yet evidenced')),
     },
     {
-      label: 'Target country fit',
-      weight: '15 pts',
-      detail:
-        match.reasons.find(
-          (r) =>
-            r.toLowerCase().includes('market') ||
-            r.toLowerCase().includes('country')
-        ) || `Target: ${profile.target_country || 'Unset'} → ${demand.country}`,
+      label: 'Target country',
+      points: 15,
+      detail: `You target ${profile.target_country || 'no country yet'}, the challenge is in ${demand.country}`,
       passed:
-        (profile.target_country || '').toLowerCase() ===
-          demand.country.toLowerCase() ||
-        (profile.home_country || '').toLowerCase() ===
-          demand.country.toLowerCase(),
+        (profile.target_country || '').toLowerCase() === demand.country.toLowerCase() ||
+        (profile.home_country || '').toLowerCase() === demand.country.toLowerCase(),
     },
     {
-      label: 'Stage compatibility',
-      weight: '15 pts',
-      detail:
-        match.reasons.find((r) => r.toLowerCase().includes('stage')) ||
-        `Startup: ${profile.stage || 'Unset'} (Accepts: ${demand.stages.join(', ')})`,
-      passed: Boolean(
-        profile.stage && demand.stages.includes(profile.stage)
-      ),
+      label: 'Company stage',
+      points: 15,
+      detail: `You are ${profile.stage || 'not set'}, they accept ${demand.stages.join(', ')}`,
+      passed: Boolean(profile.stage && demand.stages.includes(profile.stage)),
+    },
+    {
+      label: 'Goal and pilot readiness',
+      points: 10,
+      detail: profile.primary_goal ? `Your goal: ${profile.primary_goal}` : 'Your main goal is not set',
+      passed: Boolean(profile.primary_goal && demand.goals.includes(profile.primary_goal)),
     },
   ];
 
-  const sampleReferenceMaterials = [
-    {
-      id: 'REF-01',
-      title: 'Challenge Problem Statement Brief (Synthetic)',
-      meta: `${demand.id} • Metadata-Only Demo Document • Not an active tender`,
-      status: demand.data_status,
-    },
-    {
-      id: 'REF-02',
-      title: 'Pilot Evaluation Protocol Template (Draft)',
-      meta: '75-Day Cross-Border Validation Framework • Illustrative Reference',
-      status: 'synthetic_demo' as const,
-    },
-    {
-      id: 'REF-03',
-      title: 'Cross-Border Data Consent & IP Discussion Guide',
-      meta: 'Pre-Pilot Governance Checklist • Non-binding',
-      status: 'synthetic_demo' as const,
-    },
-  ];
+  const briefing = `${demand.title}, posted by ${demand.buyer_name} in ${demand.country}. Fit score ${match.score} out of 100. This is a rule-based score, not a funding probability. Why it fits: ${whyText} Suggested next step: ${nextText}`;
 
   return (
-    <section
-      aria-label="Opportunity Match Intelligence Detail"
-      className="mx-auto max-w-6xl space-y-6 pb-20"
-    >
-      {/* Header Card */}
-      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-          <button
-            type="button"
-            onClick={onBack}
-            data-testid="back-to-challenges-btn"
-            className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>← Back to Challenges Board</span>
-          </button>
+    <section aria-label="Challenge details" className="space-y-5 pb-28 md:pb-24">
+      <BackLink onClick={onBack}>All challenges</BackLink>
 
+      {/* What it is */}
+      <header className="space-y-3">
+        <div className="flex items-center gap-2 text-sm font-medium text-muted">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface text-xs font-extrabold text-ink shadow-card">
+            {countryCode(demand.country)}
+          </span>
+          <span className="truncate">{demand.buyer_name}</span>
+        </div>
+        <h2 className="text-2xl font-bold leading-tight text-ink sm:text-3xl">{demand.title}</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <Chip tone={eligibility.tone}>{eligibility.label}</Chip>
+          <ProvenanceBadge status={demand.data_status} sourceUrl={demand.source_url} lastVerifiedAt={demand.last_verified_at} />
+          <Chip>{DEMAND_KIND_LABEL[demand.demand_kind]}</Chip>
+          {money ? <Chip>{money} (illustrative)</Chip> : null}
+          {demand.deadline_label ? <Chip>{demand.deadline_label}</Chip> : null}
+        </div>
+        <p className="max-w-prose text-[15px] leading-relaxed text-muted">{demand.problem}</p>
+      </header>
+
+      {/* Fit at a glance */}
+      <Panel data-testid="compatibility-gauge-card" className="space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="w-40">
+            <FitMeter score={match.score} />
+          </div>
           <div className="flex flex-wrap items-center gap-2">
-            <KokoroTtsButton
-              label="🔊 Read Match Intelligence (Kokoro TTS)"
-              showVoiceSelector
-              text={`Match Intelligence for ${demand.buyer_name} in ${demand.country}. Deterministic compatibility score is ${match.score} out of 100. Why it matches: ${match.ai_analysis?.why_match || ''}. Potential collaboration: ${match.ai_analysis?.potential_collaboration || ''}. Recommended next step: ${match.ai_analysis?.next_action || ''}`}
-            />
-            <ProvenanceBadge
-              status={demand.data_status}
-              sourceUrl={demand.source_url}
-              lastVerifiedAt={demand.last_verified_at}
-            />
             <AiSourceBadge source={match.ai_source || 'demo_fixture'} />
+            <KokoroTtsButton label="Listen" text={briefing} showVoiceSelector />
           </div>
         </div>
+        <p className="text-xs text-muted">
+          Rule-based fit with your profile. It is not a funding probability or a promise of selection.
+        </p>
 
-        <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-700">
-                <Building2 className="h-4 w-4 text-slate-500" />
-                {demand.buyer_name}
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800">
-                <span>{getCountryFlag(demand.country)}</span>
-                <span>{demand.country}</span>
-              </span>
-              <span className="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-800 border border-indigo-200/80">
-                {demand.industry}
-              </span>
-              <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 border border-emerald-200/80">
-                {demand.demand_kind === 'vc_thesis'
-                  ? 'VC Investment Thesis'
-                  : 'Corporate Challenge (POC)'}
-              </span>
-            </div>
-
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              {demand.title}
-            </h1>
-            <p className="max-w-3xl text-sm leading-relaxed text-slate-600">
-              {demand.problem}
-            </p>
-          </div>
-
-          <div className="flex shrink-0 flex-col items-start gap-2 lg:items-end">
-            <span className="rounded-xl border border-emerald-200 bg-emerald-50/90 px-3.5 py-1.5 text-xs font-semibold text-emerald-900">
-              {formatBudgetPill(demand)}
-            </span>
-            {demand.deadline_label && (
-              <span className="text-xs text-slate-500">
-                {demand.deadline_label}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Two-Column Intelligence Layout */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Left Column: Compatibility Gauge + 4 Collapsible Intelligence Cards */}
-        <div className="space-y-5 lg:col-span-8">
-          {/* Compatibility Gauge & Summary Card */}
-          <div
-            data-testid="compatibility-gauge-card"
-            className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs sm:p-6"
-          >
-            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-              {/* SVG Circular Progress Ring */}
-              <div className="relative flex h-32 w-32 shrink-0 items-center justify-center">
-                <svg
-                  className="h-32 w-32 -rotate-90 transform"
-                  viewBox="0 0 120 120"
-                  role="img"
-                  aria-label={`${match.score}% Compatibility`}
-                >
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r={radius}
-                    stroke="currentColor"
-                    strokeWidth="10"
-                    fill="transparent"
-                    className="text-slate-100"
-                  />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r={radius}
-                    stroke="#10B981"
-                    strokeWidth="10"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={strokeDashoffset}
-                    strokeLinecap="round"
-                    fill="transparent"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-2xl font-extrabold tracking-tight text-slate-900">
-                    {`${match.score}%`}
-                  </span>
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">
-                    Compatibility
-                  </span>
-                </div>
-              </div>
-
-              {/* Match Summary & Deterministic Rubric Checklist */}
-              <div className="flex-1 space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100/90 px-2.5 py-1 text-xs font-bold text-emerald-900">
-                    <Sparkles className="h-3.5 w-3.5 text-emerald-700" />
-                    {matchTierLabel}
-                  </span>
-                  <span className="inline-flex items-center rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-900">
-                    Deterministic 30/30/15/15/10 Rubric Score — Not a guarantee of selection or funding
-                  </span>
-                </div>
-
-                <p className="text-xs leading-relaxed text-slate-600">
-                  Evaluated against confirmed Startup Passport for{' '}
-                  <strong className="font-semibold text-slate-900">
-                    {profile.startup_name || 'Your Startup'}
-                  </strong>
-                  . Scores reflect rule-based criteria alignment, not investment or grant approval probability.
-                </p>
-
-                {/* Rule-derived reasons checklist */}
-                <div className="grid grid-cols-1 gap-2 pt-1 sm:grid-cols-2">
-                  {rubricChecklist.map((item) => (
-                    <div
-                      key={item.label}
-                      className={`flex items-start gap-2 rounded-xl border p-2.5 text-xs ${
-                        item.passed
-                          ? 'border-emerald-200 bg-emerald-50/50 text-slate-800'
-                          : 'border-amber-200 bg-amber-50/50 text-slate-800'
-                      }`}
-                    >
-                      {item.passed ? (
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                      ) : (
-                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                      )}
-                      <div>
-                        <div className="flex items-center gap-1.5 font-semibold text-slate-900">
-                          <span>{item.label}</span>
-                          <span className="text-[10px] font-medium text-slate-500">
-                            ({item.weight})
-                          </span>
-                        </div>
-                        <p className="mt-0.5 text-[11px] text-slate-600">
-                          {item.detail}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {match.reasons.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {match.reasons.map((reason) => (
-                      <span
-                        key={reason}
-                        className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700"
-                      >
-                        <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                        {reason}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* 4 Collapsible Intelligence Cards */}
-          <div className="space-y-3.5">
-            {/* 1. Why it matches */}
-            <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
-              <button
-                type="button"
-                onClick={() => toggleSection('why')}
-                aria-expanded={openSections.why}
-                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition hover:bg-slate-50/80"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <Sparkles className="h-4 w-4" />
-                  </span>
-                  <div>
-                    <h2 className="text-sm font-bold text-slate-900">
-                      ✨ Why it matches
-                    </h2>
-                    <p className="text-[11px] text-slate-500">
-                      Grounded strictly in supplied Startup Passport and demand brief facts
-                    </p>
-                  </div>
-                </div>
-                {openSections.why ? (
-                  <ChevronUp className="h-4 w-4 text-slate-400" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-slate-400" />
-                )}
-              </button>
-              {openSections.why && (
-                <div className="border-t border-slate-100 px-5 py-4 text-sm leading-relaxed text-slate-700">
-                  <p>{whyMatchText}</p>
-                </div>
-              )}
-            </div>
-
-            {/* 2. Potential collaboration */}
-            <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
-              <button
-                type="button"
-                onClick={() => toggleSection('collab')}
-                aria-expanded={openSections.collab}
-                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition hover:bg-slate-50/80"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    <Lightbulb className="h-4 w-4" />
-                  </span>
-                  <div>
-                    <h2 className="text-sm font-bold text-slate-900">
-                      💡 Potential collaboration
-                    </h2>
-                    <p className="text-[11px] text-slate-500">
-                      Hypothetical exploratory pilot scope — subject to mutual discovery
-                    </p>
-                  </div>
-                </div>
-                {openSections.collab ? (
-                  <ChevronUp className="h-4 w-4 text-slate-400" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-slate-400" />
-                )}
-              </button>
-              {openSections.collab && (
-                <div className="border-t border-slate-100 px-5 py-4 text-sm leading-relaxed text-slate-700">
-                  <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-indigo-50 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-800">
-                    Hypothetical Exploratory Pilot Concept
-                  </div>
-                  <p>{potentialCollaborationText}</p>
-                </div>
-              )}
-            </div>
-
-            {/* 3. Risks and missing information */}
-            <div className="overflow-hidden rounded-2xl border border-amber-200/90 bg-white shadow-xs">
-              <button
-                type="button"
-                onClick={() => toggleSection('risks')}
-                aria-expanded={openSections.risks}
-                className="flex w-full items-center justify-between gap-3 bg-amber-50/40 px-5 py-4 text-left transition hover:bg-amber-50/70"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-800 border border-amber-300">
-                    <AlertTriangle className="h-4 w-4" />
-                  </span>
-                  <div>
-                    <h2 className="text-sm font-bold text-slate-900">
-                      ⚠️ Risks and missing information
-                    </h2>
-                    <p className="text-[11px] text-slate-600">
-                      Unverified capabilities, regulatory checks, and operational unknowns
-                    </p>
-                  </div>
-                </div>
-                {openSections.risks ? (
-                  <ChevronUp className="h-4 w-4 text-slate-400" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-slate-400" />
-                )}
-              </button>
-              {openSections.risks && (
-                <div className="border-t border-amber-100 px-5 py-4 text-sm text-slate-700">
-                  {combinedRisksAndUnknowns.length > 0 ? (
-                    <ul className="space-y-2">
-                      {combinedRisksAndUnknowns.map((gap, index) => (
-                        <li
-                          key={index}
-                          className="flex items-start gap-2.5 rounded-xl border border-amber-200/80 bg-amber-50/50 p-3 text-xs leading-relaxed text-amber-950"
-                        >
-                          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
-                          <span>{gap}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-xs text-slate-600">
-                      Confirm offline operation, local data privacy compliance, and field trial consent before pilot kick-off.
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* 4. Recommended next step */}
-            <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
-              <button
-                type="button"
-                onClick={() => toggleSection('next')}
-                aria-expanded={openSections.next}
-                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition hover:bg-slate-50/80"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <CheckSquare className="h-4 w-4" />
-                  </span>
-                  <div>
-                    <h2 className="text-sm font-bold text-slate-900">
-                      ☑️ Recommended next step
-                    </h2>
-                    <p className="text-[11px] text-slate-500">
-                      Actionable milestone to advance from Identified to Qualified
-                    </p>
-                  </div>
-                </div>
-                {openSections.next ? (
-                  <ChevronUp className="h-4 w-4 text-slate-400" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-slate-400" />
-                )}
-              </button>
-              {openSections.next && (
-                <div className="border-t border-slate-100 px-5 py-4 text-sm leading-relaxed text-slate-700">
-                  <p>{nextActionText}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column (Desktop) / Bottom Section (Mobile): Key Information & Reference Materials */}
-        <div className="space-y-5 lg:col-span-4">
-          {/* Key Information Card */}
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs">
-            <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-              <Info className="h-4 w-4 text-emerald-600" />
-              <span>Key Information</span>
-            </h2>
-
-            <dl className="mt-4 space-y-3 text-xs">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <dt className="font-medium text-slate-500">Industry</dt>
-                <dd className="font-semibold text-slate-900">{demand.industry}</dd>
-              </div>
-
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <dt className="font-medium text-slate-500">Demand Type</dt>
-                <dd className="font-semibold text-slate-900">
-                  {demand.demand_kind === 'vc_thesis'
-                    ? 'VC Investment Thesis'
-                    : 'Corporate Challenge (POC)'}
-                </dd>
-              </div>
-
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <dt className="font-medium text-slate-500">Country</dt>
-                <dd className="font-semibold text-slate-900">
-                  {getCountryFlag(demand.country)} {demand.country}
-                </dd>
-              </div>
-
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                <dt className="font-medium text-slate-500">Accepted Stages</dt>
-                <dd className="font-semibold text-slate-900">
-                  {demand.stages.join(', ')}
-                </dd>
-              </div>
-
-              <div className="border-b border-slate-100 pb-2.5">
-                <dt className="font-medium text-slate-500">Must-Have Gates</dt>
-                <dd className="mt-1.5 flex flex-wrap gap-1.5">
-                  {demand.must_have.map((m) => (
-                    <span
-                      key={m}
-                      className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-800"
-                    >
-                      {m}
-                    </span>
-                  ))}
-                </dd>
-              </div>
-
-              <div className="border-b border-slate-100 pb-2.5">
-                <dt className="font-medium text-slate-500">Provenance Status</dt>
-                <dd className="mt-1.5 flex flex-col gap-1">
-                  <code className="w-fit rounded bg-amber-100/80 px-1.5 py-0.5 text-[11px] font-semibold text-amber-900">
-                    {demand.data_status}
-                  </code>
-                  <ProvenanceBadge
-                    status={demand.data_status}
-                    sourceUrl={demand.source_url}
-                    lastVerifiedAt={demand.last_verified_at}
-                  />
-                </dd>
-              </div>
-
-              <div>
-                <dt className="font-medium text-slate-500">Verification Note</dt>
-                <dd className="mt-1 space-y-1 text-[11px] leading-relaxed text-slate-600">
-                  {(demand.eligibility_notes && demand.eligibility_notes.length > 0
-                    ? demand.eligibility_notes
-                    : [
-                        'Synthetic Demo record created for hackathon evaluation — not an active commercial tender.',
-                      ]
-                  ).map((note, idx) => (
-                    <p key={idx}>{note}</p>
-                  ))}
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          {/* Sample Reference Materials (Synthetic Demo Metadata) */}
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                <FileText className="h-4 w-4 text-indigo-600" />
-                <span>Sample Reference Materials (Synthetic Demo Metadata)</span>
-              </h2>
-            </div>
-            <p className="mt-1 text-[11px] text-slate-500">
-              Metadata-only reference artifacts for pilot scoping. No confidential partner documents are hosted in this public client bundle.
-            </p>
-
-            <ul className="mt-3.5 space-y-2.5">
-              {sampleReferenceMaterials.map((doc) => (
-                <li
-                  key={doc.id}
-                  className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 text-xs"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="font-semibold text-slate-800">
-                      {doc.title}
-                    </span>
-                    <Lock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  </div>
-                  <p className="mt-1 text-[11px] text-slate-500">{doc.meta}</p>
+        <div>
+          <h3 className="flex items-center gap-1.5 text-sm font-bold text-ink">
+            <Sparkles className="h-4 w-4 text-ai" aria-hidden="true" />
+            Why it fits
+          </h3>
+          <p className="mt-1.5 text-[15px] leading-relaxed text-ink">{whyText}</p>
+          {match.reasons.length > 0 ? (
+            <ul className="mt-3 space-y-1.5">
+              {match.reasons.slice(0, 3).map((r) => (
+                <li key={r} className="flex items-start gap-2 text-sm text-ink">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-jade" aria-hidden="true" />
+                  {r}
                 </li>
               ))}
             </ul>
-          </div>
+          ) : null}
         </div>
+
+        <div className="rounded-xl bg-jade-wash p-3.5">
+          <h3 className="text-sm font-bold text-jade">Suggested next step</h3>
+          <p className="mt-1 text-sm leading-relaxed text-ink">{nextText}</p>
+        </div>
+      </Panel>
+
+      {/* Detail on demand */}
+      <div className="space-y-3">
+        <Disclosure
+          title="What is still unknown"
+          summary={risks.length ? `${risks.length} thing${risks.length === 1 ? '' : 's'} to check before you pitch` : 'Nothing flagged'}
+          defaultOpen={risks.length > 0}
+        >
+          {risks.length > 0 ? (
+            <ul className="space-y-2">
+              {risks.map((gap) => (
+                <li key={gap} className="flex items-start gap-2">
+                  <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-ink" aria-hidden="true" />
+                  <span>{gap}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-muted">Still confirm data consent and local rules with the partner before a pilot starts.</p>
+          )}
+        </Disclosure>
+
+        <Disclosure title="How the score is worked out" summary="Five checks, 100 points in total">
+          <ul className="divide-y divide-line">
+            {breakdown.map((b) => (
+              <li key={b.label} className="flex items-start gap-3 py-2.5 first:pt-0 last:pb-0">
+                {b.passed ? (
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-jade" aria-label="Met" />
+                ) : (
+                  <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-ink" aria-label="Not yet met" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-semibold">{b.label}</span>
+                    <span className="tabular text-xs text-muted">up to {b.points} pts</span>
+                  </div>
+                  <p className="text-sm text-muted">{b.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Disclosure>
+
+        <Disclosure title="What a pilot could look like" summary="A starting idea to discuss, not an offer">
+          <p>{collaborationText}</p>
+        </Disclosure>
+
+        <Disclosure title="Challenge requirements">
+          <dl className="space-y-3">
+            <div>
+              <dt className="text-xs font-semibold text-muted">Must have</dt>
+              <dd className="mt-1 flex flex-wrap gap-1.5">
+                {demand.must_have.map((m) => <Chip key={m}>{m}</Chip>)}
+              </dd>
+            </div>
+            {demand.nice_to_have.length > 0 ? (
+              <div>
+                <dt className="text-xs font-semibold text-muted">Nice to have</dt>
+                <dd className="mt-1 flex flex-wrap gap-1.5">
+                  {demand.nice_to_have.map((m) => <Chip key={m}>{m}</Chip>)}
+                </dd>
+              </div>
+            ) : null}
+            <div>
+              <dt className="text-xs font-semibold text-muted">Accepted stages</dt>
+              <dd className="mt-0.5">{demand.stages.join(', ')}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-semibold text-muted">About this record</dt>
+              <dd className="mt-0.5 space-y-1 text-muted">
+                {(demand.eligibility_notes?.length
+                  ? demand.eligibility_notes
+                  : ['Sample record made for this demo. Not a live tender.']
+                ).map((note) => (
+                  <p key={note} className="flex items-start gap-1.5">
+                    <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    {note}
+                  </p>
+                ))}
+              </dd>
+            </div>
+          </dl>
+        </Disclosure>
       </div>
 
-      {/* Primary Action Bar */}
-      <div className="sticky bottom-4 z-20 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2.5 text-xs text-slate-600">
-          <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
-          <span>
-            Saving a match records state <code className="font-semibold text-slate-900">qualified</code> (event:{' '}
-            <code className="font-semibold text-slate-900">match_qualified</code>) locally — never falsely marked as Contacted or Signed.
-          </span>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
+      {/* Sticky actions: one primary */}
+      <div className="fixed inset-x-0 bottom-[60px] z-30 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur-md md:bottom-0 md:left-60">
+        <div className="mx-auto flex max-w-5xl items-center gap-2 sm:px-2">
+          <Button
+            variant="secondary"
             onClick={() => onSaveQualifiedDeal(match)}
             disabled={isDealSaved}
             data-testid="save-qualified-deal-btn"
-            className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-semibold transition ${
-              isDealSaved
-                ? 'border-emerald-200 bg-emerald-50 text-emerald-800 cursor-default'
-                : 'border-slate-300 bg-white text-slate-800 shadow-2xs hover:bg-slate-50'
-            }`}
+            aria-label={isDealSaved ? 'Saved to deals' : 'Save to deals'}
+            icon={
+              isDealSaved ? (
+                <BookmarkCheck className="h-4 w-4 text-jade" aria-hidden="true" />
+              ) : (
+                <Bookmark className="h-4 w-4" aria-hidden="true" />
+              )
+            }
           >
-            {isDealSaved ? (
-              <>
-                <BookmarkCheck className="h-4 w-4 text-emerald-600" />
-                <span>🔖 Saved as Qualified Deal</span>
-              </>
-            ) : (
-              <>
-                <Bookmark className="h-4 w-4 text-slate-600" />
-                <span>🔖 Save as Qualified Deal</span>
-              </>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onOpenPocBuilder(match)}
-            data-testid="detail-create-poc-plan-btn"
-            style={{ backgroundColor: '#10B981' }}
-            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold text-slate-950 shadow-sm transition hover:brightness-95"
-          >
-            <span>✨ Create 75-Day POC Plan</span>
-          </button>
+            <span className="hidden sm:inline">{isDealSaved ? 'Saved' : 'Save to deals'}</span>
+          </Button>
+          <Button block size="lg" variant="jade" onClick={() => onOpenPocBuilder(match)} data-testid="detail-create-poc-plan-btn">
+            Draft pilot plan
+          </Button>
         </div>
       </div>
     </section>

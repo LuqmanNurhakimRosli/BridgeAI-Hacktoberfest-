@@ -29,7 +29,7 @@ describe('Task 7 & 8: DealTrackerView, OutcomeAnalyticsView, InvestorReadinessVi
     resetLocalDeals();
   });
 
-  it('renders DealTrackerView with verbatim LocalStorage honesty banner, KPI tiles, chevron funnel, AI follow-up banner, and 30/90/180 check-in cards', () => {
+  it('renders DealTrackerView with separated sources, attention list, honest storage note and stage chip', () => {
     const localDeal = createQualifiedDealFromMatch({
       startupName: 'AgriSmart',
       demand: briefs[0],
@@ -46,24 +46,17 @@ describe('Task 7 & 8: DealTrackerView, OutcomeAnalyticsView, InvestorReadinessVi
       })
     );
 
-    expect(html).toContain(
-      '🔒 Browser LocalStorage Mode: Your saved deals and stage transitions are persisted locally on this device. Synthetic demo cohort records are badged separately.'
-    );
-    expect(html).toContain('All Deals (Local + Demo Cohort)');
-    expect(html).toContain('My Saved Deals (1)');
-    expect(html).toContain('Synthetic Demo Cohort (6)');
-    expect(html).toContain('Total Tracked Deals');
-    expect(html).toContain('Active Qualified / POC Deals');
-    expect(html).toContain('Pending Follow-ups');
-    expect(html).toContain('Signed / Paid Outcomes');
-    expect(html).toContain('📋 Copy Follow-up Draft');
-    expect(html).toContain('ActivityTimeline');
-    expect(html).toContain('30 Days');
-    expect(html).toContain('90 Days');
-    expect(html).toContain('180 Days');
+    expect(html).toContain('My deals (1)');
+    expect(html).toContain('Demo examples (6)');
+    expect(html).toContain('Saved in this browser only. Stages change only when you record them.');
+    expect(html).toContain('Needs your attention');
+    expect(html).toContain('follow-ups pending');
+    expect(html).toContain('signed or paid');
+    expect(html).toContain('Qualified Match');
+    expect(html).toContain('Saved on this device');
   });
 
-  it('renders OutcomeAnalyticsView with cohort switcher, honest zero-denominator em-dash, explicit numerators/denominators, and visual charts', () => {
+  it('renders OutcomeAnalyticsView with separated cohorts, honest empty denominators and funnel', () => {
     const localDeal = createQualifiedDealFromMatch({
       startupName: 'AgriSmart',
       demand: briefs[0],
@@ -77,25 +70,18 @@ describe('Task 7 & 8: DealTrackerView, OutcomeAnalyticsView, InvestorReadinessVi
       })
     );
 
-    expect(html).toContain(
-      '🌱 My Local Recorded Deals (1) — Actual Browser Events'
-    );
-    expect(html).toContain(
-      '📊 Synthetic Demo Cohort (6) — Illustrative Funnel'
-    );
-    expect(html).toContain('🔀 Combined View (Local + Demo Labelled)');
-    expect(html).toContain('POC → Paid Conversion Rate');
-    expect(html).toContain('0 paid / 0 completed POCs');
-    expect(html).toContain('— (In progress — no closed deals yet)');
-    expect(html).toContain('Proposals are activity, not closed revenue');
-    expect(html).toContain(
-      'Outcomes Over Time (POCs Started vs Contracts Signed)'
-    );
-    expect(html).toContain('Deals by Sector');
-    expect(html).toContain('Top ASEAN Countries by Outcomes');
+    expect(html).toContain('My deals (1)');
+    expect(html).toContain('Demo examples (6)');
+    expect(html).toContain('Worked out from the stage updates you recorded in this browser.');
+    expect(html).toContain('Pilots that turned into paid work');
+    expect(html).toContain('No finished pilots yet');
+    expect(html).toContain('—');
+    expect(html).toContain('Proposals and pilots are progress, not revenue.');
+    expect(html).toContain('How far deals get');
+    expect(html).toContain('Where your deals are');
   });
 
-  it('renders InvestorReadinessView with 78/100 score ring, 5 checklist categories, Rule #14 security notice, and Thailand NIA historical reference badge', () => {
+  it('renders InvestorReadinessView with self-check score, document list without sharing, market questions and closed-programme label', () => {
     const html = renderToStaticMarkup(
       React.createElement(InvestorReadinessView, {
         profile: AGRISMART_PRESET,
@@ -113,18 +99,15 @@ describe('Task 7 & 8: DealTrackerView, OutcomeAnalyticsView, InvestorReadinessVi
     expect(html).toContain('Cap Table Structure');
     expect(html).toContain('Incorporation Certificate');
     expect(html).toContain('Field Pilot Protocol');
-    expect(html).toContain(
-      'Security Boundary (Rule #14): Prototype tracks document readiness metadata only. Real investor data rooms require P2 authenticated encrypted storage.'
-    );
-    expect(html).toContain('Entity &amp; Local Establishment Questions');
-    expect(html).toContain('Cross-Border Data &amp; Privacy Checks');
-    expect(html).toContain('Sector Regulatory Questions');
-    expect(html).toContain('Local Pilot &amp; Distribution Questions');
-    expect(html).toContain('Startup ASEAN Public Portal');
+    expect(html).toContain('Document sharing isn&#x27;t available yet.');
+    expect(html).toContain('This is not legal advice.');
+    expect(html).toContain('Company setup');
+    expect(html).toContain('Data and privacy');
+    expect(html).toContain('Sector rules');
+    expect(html).toContain('Running the pilot');
+    expect(html).toContain('Startup ASEAN');
     expect(html).toContain('Thailand NIA Global Startup Hub 2026');
-    expect(html).toContain(
-      'Historical Reference — Application window closed 15 Mar 2026'
-    );
+    expect(html).toContain('Closed 15 Mar 2026');
   });
 
   it('validates /api/analyze, /api/challenges, /api/demand/matches, and /api/poc route handlers', async () => {
@@ -197,9 +180,10 @@ describe('Task 7 & 8: DealTrackerView, OutcomeAnalyticsView, InvestorReadinessVi
     expect(getLocalDeals().length).toBe(0);
     const html = renderToStaticMarkup(React.createElement(BridgeAiMainPage));
     expect(html).toContain('Bridge');
-    expect(html).toContain('AgriSmart Founder · MY → ID');
-    expect(html).toContain('🚀 Run AgriSmart Golden Path (1-Click Demo)');
-    expect(html).toContain('🔊 Voice Briefing (Kokoro TTS)');
+    expect(html).toContain('AgriSmart');
+    expect(html).toContain('Confirm your startup profile');
+    expect(html).toContain('Run guided demo');
+    expect(html).toContain('Listen to briefing');
   });
 
   it('validates /api/tts Kokoro TTS route handler and KokoroTtsButton voice selector', async () => {
@@ -225,7 +209,7 @@ describe('Task 7 & 8: DealTrackerView, OutcomeAnalyticsView, InvestorReadinessVi
         showVoiceSelector: true,
       })
     );
-    expect(btnHtml).toContain('Kokoro: Heart (F)');
-    expect(btnHtml).toContain('Listen (Kokoro TTS)');
+    expect(btnHtml).toContain('Heart (F)');
+    expect(btnHtml).toContain('Listen');
   });
 });

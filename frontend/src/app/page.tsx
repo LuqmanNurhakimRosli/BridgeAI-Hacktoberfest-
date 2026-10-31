@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, Rocket, X } from 'lucide-react';
+import { CheckCircle2, X } from 'lucide-react';
 import type {
   Deal,
   DealState,
@@ -13,6 +13,7 @@ import type {
 import demandBriefsData from '@/data/demand-briefs.json';
 import { rankDemandMatches } from '@/lib/demand-matcher';
 import { toRequestProfile } from '@/lib/contract';
+import { getDealStateLabel } from '@/lib/deal-fsm';
 import {
   addDealTask,
   appendDealEvent,
@@ -37,13 +38,24 @@ import {
 import { DealTrackerView } from '@/components/DealTrackerView';
 import { OutcomeAnalyticsView } from '@/components/OutcomeAnalyticsView';
 import { InvestorReadinessView } from '@/components/InvestorReadinessView';
+import { Segmented } from '@/components/ui';
 
 type ChallengeSubView = 'list' | 'detail' | 'poc';
+type DealsView = 'pipeline' | 'outcomes';
+type ProfileView = 'passport' | 'readiness';
+
+const DISCOVER_STEPS: Array<{ id: ChallengeSubView; label: string }> = [
+  { id: 'list', label: 'Choose a challenge' },
+  { id: 'detail', label: 'Check your fit' },
+  { id: 'poc', label: 'Draft a pilot' },
+];
 
 export default function BridgeAiMainPage() {
   const [activeTab, setActiveTab] = useState<NavTab>('home');
   const [challengeSubView, setChallengeSubView] =
     useState<ChallengeSubView>('list');
+  const [dealsView, setDealsView] = useState<DealsView>('pipeline');
+  const [profileView, setProfileView] = useState<ProfileView>('passport');
 
   const [profile, setProfile] = useState<StartupProfile>(AGRISMART_PRESET);
   const [isPassportConfirmed, setIsPassportConfirmed] = useState<boolean>(false);
@@ -71,6 +83,16 @@ export default function BridgeAiMainPage() {
     setLocalDeals(getLocalDeals());
   }, []);
 
+  useEffect(() => {
+    if (!toastMessage) return;
+    const timer = setTimeout(() => setToastMessage(null), 5000);
+    return () => clearTimeout(timer);
+  }, [toastMessage]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [activeTab, challengeSubView, dealsView, profileView]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
   };
@@ -85,7 +107,7 @@ export default function BridgeAiMainPage() {
 
   const handleNavigate = (tab: NavTab) => {
     setActiveTab(tab);
-    if (tab === 'challenges') {
+    if (tab === 'discover') {
       setChallengeSubView('list');
     }
   };
@@ -139,24 +161,24 @@ export default function BridgeAiMainPage() {
     if (source) setAiSource(source);
     if (model) setAiModel(model);
     refreshDemandMatches(confirmedProfile);
-    setActiveTab('challenges');
+    setActiveTab('discover');
     setChallengeSubView('list');
     showToast(
-      `Confirmed Startup Passport for ${
-        confirmedProfile.startup_name || 'AgriSmart'
-      }. Ranked ${demands.length} ASEAN demand briefs.`
+      `Profile confirmed. Challenges are now ranked for ${
+        confirmedProfile.startup_name || 'your startup'
+      }.`
     );
   };
 
   const handleSelectMatchFromHomeOrBoard = (match: ReverseMatch) => {
     setSelectedMatchId(match.demand_id);
-    setActiveTab('challenges');
+    setActiveTab('discover');
     setChallengeSubView('detail');
   };
 
   const handleOpenPocBuilder = (match: ReverseMatch) => {
     setSelectedMatchId(match.demand_id);
-    setActiveTab('challenges');
+    setActiveTab('discover');
     setChallengeSubView('poc');
   };
 
@@ -166,9 +188,7 @@ export default function BridgeAiMainPage() {
       demand: match.demand,
     });
     setLocalDeals(getLocalDeals());
-    showToast(
-      `Saved "${created.title}" at state "Qualified Match" in browser localStorage.`
-    );
+    showToast(`Saved "${created.title}" to your deals.`);
   };
 
   const handleSaveDealWithPoc = (
@@ -194,9 +214,8 @@ export default function BridgeAiMainPage() {
 
     setLocalDeals(getLocalDeals());
     setActiveTab('deals');
-    showToast(
-      `Saved 75-Day Proposed POC & Qualified Deal with ${match.demand.buyer_name} to Deal Tracker!`
-    );
+    setDealsView('pipeline');
+    showToast(`Pilot plan saved. ${match.demand.buyer_name} is now in your deals.`);
   };
 
   const ensureDealInLocalStorage = (dealId: string): string => {
@@ -227,7 +246,7 @@ export default function BridgeAiMainPage() {
         note,
       });
       setLocalDeals(deals);
-      showToast(`Recorded human-confirmed stage transition to "${toState}".`);
+      showToast(`Stage updated to "${getDealStateLabel(toState)}".`);
     } catch (err) {
       showToast(
         err instanceof Error ? err.message : 'Could not transition deal state.'
@@ -248,7 +267,7 @@ export default function BridgeAiMainPage() {
         cadenceDays,
       });
       setLocalDeals(deals);
-      showToast(`Scheduled ${cadenceDays}-day follow-up check-in task.`);
+      showToast(`Follow-up scheduled in ${cadenceDays} days.`);
     } catch {
       // Ignore if deal not found
     }
@@ -301,10 +320,10 @@ export default function BridgeAiMainPage() {
       setLocalDeals(getLocalDeals());
     }
 
-    setActiveTab('challenges');
+    setActiveTab('discover');
     setChallengeSubView('detail');
     showToast(
-      '🚀 Golden Path Ready: AgriSmart Passport confirmed, matched with Nusantara Food & Farms (ID), and 75-day POC queued!'
+      'Guided demo ready: sample profile confirmed, best match opened and a pilot plan saved to your deals.'
     );
   };
 
@@ -318,83 +337,80 @@ export default function BridgeAiMainPage() {
     );
   }, [localDeals, selectedMatch, profile.startup_name]);
 
-  const activeDealsCount = localDeals.length + demoDeals.length;
+  const discoverTitle =
+    challengeSubView === 'detail'
+      ? 'Challenge details'
+      : challengeSubView === 'poc'
+      ? 'Pilot plan'
+      : undefined;
+  const stepIndex = DISCOVER_STEPS.findIndex((s) => s.id === challengeSubView);
 
   return (
     <AppShell
       activeTab={activeTab}
       onNavigate={handleNavigate}
-      matchedDemandsCount={matches.length}
-      activeDealsCount={activeDealsCount}
+      title={activeTab === 'discover' ? discoverTitle : undefined}
+      activeDealsCount={localDeals.length}
       aiSource={aiSource}
       aiModel={aiModel}
       profile={profile}
       onRunGoldenPath={handleRunGoldenPath}
     >
-      {/* Toast Notification Strip */}
       {toastMessage ? (
         <div
           role="status"
+          aria-live="polite"
           data-testid="global-toast-banner"
-          className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-950 px-4 py-3 text-xs sm:text-sm font-semibold text-white shadow-md"
+          className="animate-toast-in fixed inset-x-4 bottom-[84px] z-50 mx-auto flex max-w-md items-start gap-3 rounded-2xl bg-ink px-4 py-3 text-sm font-medium text-white shadow-float md:bottom-6"
         >
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-[#10B981]" />
-            <span>{toastMessage}</span>
-          </div>
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-jade-bright" aria-hidden="true" />
+          <span className="flex-1">{toastMessage}</span>
           <button
             type="button"
             onClick={() => setToastMessage(null)}
-            aria-label="Dismiss notification"
-            className="rounded-lg p-1 text-emerald-200 hover:bg-white/10 hover:text-white"
+            aria-label="Dismiss"
+            className="-m-1 rounded-lg p-1 text-white/70 hover:bg-white/10 hover:text-white cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
       ) : null}
 
-      {/* Quick Golden Path Stepper Bar when inside Challenges sub-views */}
-      {activeTab === 'challenges' && challengeSubView !== 'list' ? (
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs shadow-2xs">
-          <div className="flex flex-wrap items-center gap-2 font-semibold text-slate-600">
-            <Rocket className="h-4 w-4 text-[#10B981]" />
-            <span>Challenges Flow:</span>
-            <button
-              type="button"
-              onClick={() => setChallengeSubView('list')}
-              className="underline hover:text-[#0F2D5B]"
-            >
-              1. Demand Board
-            </button>
-            <span>→</span>
-            <button
-              type="button"
-              onClick={() => setChallengeSubView('detail')}
-              className={
-                challengeSubView === 'detail'
-                  ? 'font-extrabold text-[#0F2D5B]'
-                  : 'underline hover:text-[#0F2D5B]'
-              }
-            >
-              2. Match Intelligence Detail
-            </button>
-            <span>→</span>
-            <button
-              type="button"
-              onClick={() => setChallengeSubView('poc')}
-              className={
-                challengeSubView === 'poc'
-                  ? 'font-extrabold text-[#10B981]'
-                  : 'underline hover:text-[#0F2D5B]'
-              }
-            >
-              3. 75-Day POC Builder &amp; Outreach
-            </button>
-          </div>
-        </div>
+      {activeTab === 'discover' && challengeSubView !== 'list' ? (
+        <nav aria-label="Progress" className="mb-5">
+          <ol className="flex items-center gap-2 text-xs font-semibold">
+            {DISCOVER_STEPS.map((step, i) => {
+              const state = i < stepIndex ? 'done' : i === stepIndex ? 'current' : 'todo';
+              return (
+                <li key={step.id} className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <span
+                    className={`h-1 rounded-full ${
+                      state === 'todo' ? 'bg-ink/10' : 'bg-jade-bright'
+                    }`}
+                  />
+                  {state === 'done' ? (
+                    <button
+                      type="button"
+                      onClick={() => setChallengeSubView(step.id)}
+                      className="truncate text-left text-muted hover:text-ink cursor-pointer"
+                    >
+                      {step.label}
+                    </button>
+                  ) : (
+                    <span
+                      aria-current={state === 'current' ? 'step' : undefined}
+                      className={`truncate ${state === 'current' ? 'text-ink' : 'text-muted/70'}`}
+                    >
+                      {step.label}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
       ) : null}
 
-      {/* Main View Switcher */}
       {activeTab === 'home' && (
         <HomeGateway
           profile={profile}
@@ -409,17 +425,7 @@ export default function BridgeAiMainPage() {
         />
       )}
 
-      {activeTab === 'passport' && (
-        <StartupPassportFlow
-          profile={profile}
-          onProfileChange={setProfile}
-          onConfirmPassport={handleConfirmPassport}
-          aiSource={aiSource}
-          aiModel={aiModel}
-        />
-      )}
-
-      {activeTab === 'challenges' && challengeSubView === 'list' && (
+      {activeTab === 'discover' && challengeSubView === 'list' && (
         <DemandBoard
           profile={profile}
           matches={matches}
@@ -430,57 +436,83 @@ export default function BridgeAiMainPage() {
           onAddCustomDemand={(newBrief, scoredMatch) => {
             setDemands((prev) => [newBrief, ...prev]);
             setMatches((prev) => [scoredMatch, ...prev]);
-            showToast(
-              `Posted self-reported brief "${newBrief.title}" (${scoredMatch.score}/100 compatibility).`
-            );
+            showToast(`Posted "${newBrief.title}". Fit score ${scoredMatch.score}/100.`);
           }}
         />
       )}
 
-      {activeTab === 'challenges' &&
-        challengeSubView === 'detail' &&
-        selectedMatch && (
-          <ReverseMatchDetail
-            profile={profile}
-            match={selectedMatch}
-            onBack={() => setChallengeSubView('list')}
-            onOpenPocBuilder={handleOpenPocBuilder}
-            onSaveQualifiedDeal={handleSaveQualifiedDeal}
-            isDealSaved={isSelectedDealSaved}
-          />
-        )}
+      {activeTab === 'discover' && challengeSubView === 'detail' && selectedMatch && (
+        <ReverseMatchDetail
+          profile={profile}
+          match={selectedMatch}
+          onBack={() => setChallengeSubView('list')}
+          onOpenPocBuilder={handleOpenPocBuilder}
+          onSaveQualifiedDeal={handleSaveQualifiedDeal}
+          isDealSaved={isSelectedDealSaved}
+        />
+      )}
 
-      {activeTab === 'challenges' &&
-        challengeSubView === 'poc' &&
-        selectedMatch && (
-          <PilotPlanEditor
-            profile={profile}
-            match={selectedMatch}
-            onBack={() => setChallengeSubView('detail')}
-            onSaveDealWithPoc={handleSaveDealWithPoc}
-          />
-        )}
+      {activeTab === 'discover' && challengeSubView === 'poc' && selectedMatch && (
+        <PilotPlanEditor
+          profile={profile}
+          match={selectedMatch}
+          onBack={() => setChallengeSubView('detail')}
+          onSaveDealWithPoc={handleSaveDealWithPoc}
+        />
+      )}
 
       {activeTab === 'deals' && (
-        <DealTrackerView
-          localDeals={localDeals}
-          demoDeals={demoDeals}
-          onTransitionDeal={handleTransitionDeal}
-          onAddTask={handleAddTask}
-          onToggleTask={handleToggleTask}
-          onOpenChallenges={() => {
-            setActiveTab('challenges');
-            setChallengeSubView('list');
-          }}
-        />
+        <div className="space-y-5">
+          <Segmented
+            label="Deals view"
+            value={dealsView}
+            onChange={setDealsView}
+            options={[
+              { id: 'pipeline', label: 'Pipeline' },
+              { id: 'outcomes', label: 'Outcomes' },
+            ]}
+          />
+          {dealsView === 'pipeline' ? (
+            <DealTrackerView
+              localDeals={localDeals}
+              demoDeals={demoDeals}
+              onTransitionDeal={handleTransitionDeal}
+              onAddTask={handleAddTask}
+              onToggleTask={handleToggleTask}
+              onOpenChallenges={() => {
+                setActiveTab('discover');
+                setChallengeSubView('list');
+              }}
+            />
+          ) : (
+            <OutcomeAnalyticsView localDeals={localDeals} demoDeals={demoDeals} />
+          )}
+        </div>
       )}
 
-      {activeTab === 'insights' && (
-        <OutcomeAnalyticsView localDeals={localDeals} demoDeals={demoDeals} />
-      )}
-
-      {activeTab === 'readiness' && (
-        <InvestorReadinessView profile={profile} aiSource={aiSource} />
+      {activeTab === 'profile' && (
+        <div className="space-y-5">
+          <Segmented
+            label="Profile view"
+            value={profileView}
+            onChange={setProfileView}
+            options={[
+              { id: 'passport', label: 'Startup passport' },
+              { id: 'readiness', label: 'Investor readiness' },
+            ]}
+          />
+          {profileView === 'passport' ? (
+            <StartupPassportFlow
+              profile={profile}
+              onProfileChange={setProfile}
+              onConfirmPassport={handleConfirmPassport}
+              aiSource={aiSource}
+              aiModel={aiModel}
+            />
+          ) : (
+            <InvestorReadinessView profile={profile} aiSource={aiSource} />
+          )}
+        </div>
       )}
     </AppShell>
   );

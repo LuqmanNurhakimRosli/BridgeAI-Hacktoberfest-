@@ -19,28 +19,27 @@ const LIMIT_PER_WINDOW = 20;
 const MAX_TRACKED_IPS = 5_000;
 const hits = new Map<string, number[]>();
 
-// Use headers the hosting proxy sets. The left-most x-forwarded-for entry is client-supplied
-// and spoofable, so fall back to the right-most one (appended by the trusted proxy).
+// The left-most x-forwarded-for entry is client-supplied and spoofable. Only trust the
+// Vercel header when actually running on Vercel; otherwise use the right-most XFF entry,
+// which is the one appended by our own proxy.
 function clientIp(req: Request): string {
   const h = req.headers;
-  const forwarded = h.get('x-forwarded-for')?.split(',').pop()?.trim();
-  return h.get('x-vercel-forwarded-for')?.trim() || h.get('x-real-ip')?.trim() || forwarded || 'unknown';
+  const lastForwarded = h.get('x-forwarded-for')?.split(',').pop()?.trim();
+  const platformIp = process.env.VERCEL ? h.get('x-vercel-forwarded-for')?.trim() : undefined;
+  return platformIp || lastForwarded || 'unknown';
 }
 
 export function guardAi(req: Request, now = Date.now()): void {
-  if (hits.size >= MAX_TRACKED_IPS) {
-    for (const [key, times] of hits) {
-      if (times.every((t) => now - t >= WINDOW_MS)) hits.delete(key);
-    }
-    if (hits.size >= MAX_TRACKED_IPS) hits.clear();
-  }
   const ip = clientIp(req);
   const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
   if (recent.length >= LIMIT_PER_WINDOW) {
     throw new AppError('RATE_LIMITED', 'Too many requests. Try again in a minute.', '60');
   }
   recent.push(now);
+  // Re-insert so Map order tracks recency, then evict the least recently seen IP when full.
+  hits.delete(ip);
   hits.set(ip, recent);
+  if (hits.size > MAX_TRACKED_IPS) hits.delete(hits.keys().next().value as string);
 }
 
 type Handler = (req: Request) => Promise<Response>;

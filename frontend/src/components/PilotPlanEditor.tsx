@@ -1,26 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  ArrowLeft,
-  Sparkles,
-  Calendar,
-  Target,
-  Globe2,
-  TrendingUp,
-  AlertTriangle,
-  CheckSquare,
-  Copy,
-  Check,
-  Plus,
-  Trash2,
-  Save,
-  RefreshCw,
-  ShieldAlert,
-  Mail,
-  Users,
-} from 'lucide-react';
-import { toRequestProfile } from '@/lib/contract';
+import { Check, CircleAlert, Copy, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import type {
   POCMilestone,
   POCPlan,
@@ -28,9 +9,10 @@ import type {
   ReverseMatch,
   StartupProfile,
 } from '@/types';
-import { AiSourceBadge, ProvenanceBadge } from './ProvenanceBadge';
+import { AiSourceBadge } from './ProvenanceBadge';
 import { KokoroTtsButton } from './KokoroTtsButton';
-import { formatBudgetPill, getCountryFlag } from './DemandBoard';
+import { formatBudgetPill } from './DemandBoard';
+import { BackLink, Button, Chip, Field, Panel, RouteRibbon, Segmented, Sheet, inputClass } from './ui';
 
 export interface PilotPlanEditorProps {
   profile: StartupProfile;
@@ -210,23 +192,27 @@ export function buildDefaultPocPlan(
   };
 }
 
-const SUB_NAV_TABS = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'timeline', label: 'Timeline (Days 1–75)' },
-  { id: 'milestones', label: 'Milestones & Owners' },
-  { id: 'checklist', label: 'IP, Data & Liability Checklist' },
-  { id: 'outreach', label: 'Multilingual Outreach Draft' },
+type PlanSection = 'plan' | 'success' | 'questions' | 'message';
+
+const OWNER_LABEL: Record<POCMilestone['owner'], string> = {
+  startup: 'you lead',
+  partner: 'partner leads',
+  joint: 'shared',
+};
+
+const OPEN_QUESTIONS = [
+  'How will cross-border data and user consent be handled?',
+  'Who owns the IP: your model, the field data and any improvements?',
+  'Who is responsible for safety and liability during field trials?',
+  'Which local rules or import checks apply in the target country?',
+  'What results would turn the pilot into a paid contract?',
 ] as const;
 
-type SubNavTabId = (typeof SUB_NAV_TABS)[number]['id'];
-
-const DISCUSSION_CHECKLIST_ITEMS = [
-  'Confirm cross-border data sharing & farm/user consent protocol',
-  'Confirm foreground vs background IP ownership of model weights & field data',
-  'Confirm field-trial liability boundaries & operational safety owner',
-  'Confirm local sector regulatory / import checks in target country',
-  'Confirm post-POC commercial conversion criteria & procurement path',
-] as const;
+const LANG_CODE: Record<OutreachLanguage, 'en-US' | 'ms-MY' | 'id-ID'> = {
+  English: 'en-US',
+  'Bahasa Melayu': 'ms-MY',
+  'Bahasa Indonesia': 'id-ID',
+};
 
 export function PilotPlanEditor({
   profile,
@@ -238,784 +224,396 @@ export function PilotPlanEditor({
   const [plan, setPlan] = useState<POCPlan>(() =>
     initialPlan ? { ...initialPlan } : buildDefaultPocPlan(profile, match)
   );
-  const [activeTab, setActiveTab] = useState<SubNavTabId>('overview');
-  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({
-    [DISCUSSION_CHECKLIST_ITEMS[0]]: false,
-    [DISCUSSION_CHECKLIST_ITEMS[1]]: false,
-    [DISCUSSION_CHECKLIST_ITEMS[2]]: false,
-    [DISCUSSION_CHECKLIST_ITEMS[3]]: false,
-    [DISCUSSION_CHECKLIST_ITEMS[4]]: false,
-  });
-
-  const [selectedLang, setSelectedLang] = useState<OutreachLanguage>(
-    plan.outreach_email?.language || 'English'
-  );
-  const [copyToast, setCopyToast] = useState<string | null>(null);
-  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
-
-  // Bottom action bar state
-  const [nextActionTitle, setNextActionTitle] = useState(
-    'Schedule exploratory discovery call & confirm pilot data consent'
-  );
+  const [section, setSection] = useState<PlanSection>('plan');
+  const [resolved, setResolved] = useState<Record<string, boolean>>({});
+  const [lang, setLang] = useState<OutreachLanguage>(plan.outreach_email?.language || 'English');
+  const [copied, setCopied] = useState(false);
+  const [regenState, setRegenState] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [nextActionTitle, setNextActionTitle] = useState(`Book a scoping call with ${match.demand.buyer_name}`);
   const [cadenceDays, setCadenceDays] = useState<30 | 90 | 180>(30);
-  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
 
-  const handleLanguageSwitch = (lang: OutreachLanguage) => {
-    setSelectedLang(lang);
-    const draft = buildOutreachEmailDraft(lang, profile, match);
-    setPlan((prev) => ({
-      ...prev,
-      outreach_email: draft,
-    }));
+  const resolvedCount = OPEN_QUESTIONS.filter((q) => resolved[q]).length;
+  const wordCount = plan.outreach_email.body.trim().split(/\s+/).filter(Boolean).length;
+
+  const switchLanguage = (next: OutreachLanguage) => {
+    setLang(next);
+    setPlan((prev) => ({ ...prev, outreach_email: buildOutreachEmailDraft(next, profile, match) }));
+    setCopied(false);
   };
 
-  const handleCopyOutreach = async () => {
-    const fullText = `Subject: ${plan.outreach_email.subject}\n\n${plan.outreach_email.body}`;
+  const copyMessage = async () => {
     try {
-      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(fullText);
-      }
+      await navigator.clipboard?.writeText(`Subject: ${plan.outreach_email.subject}\n\n${plan.outreach_email.body}`);
     } catch {
-      // Fallback if clipboard permission is denied in headless test environments
+      // Clipboard can be blocked; the text stays visible for manual copying.
     }
-    setCopyToast(
-      'Draft copied to clipboard! Note: Copying a draft does NOT mark the deal as Contacted.'
-    );
+    setCopied(true);
   };
 
-  const handleRefreshFromApi = async () => {
-    setIsGeneratingAi(true);
+  const regenerate = async () => {
+    setRegenState('loading');
     try {
       const res = await fetch('/api/poc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          profile,
-          demand: match.demand,
-          language: selectedLang,
-        }),
+        body: JSON.stringify({ profile, demand: match.demand, language: lang }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.plan) {
-          setPlan(data.plan);
-        }
-      }
+      const data = res.ok ? await res.json() : null;
+      if (!data?.plan) throw new Error('No plan returned');
+      setPlan((prev) => ({
+        ...prev,
+        ...data.plan,
+        outreach_email: data.plan.outreach_email ?? prev.outreach_email,
+      }));
+      setRegenState('idle');
     } catch {
-      // Keep current editable plan if offline
-    } finally {
-      setIsGeneratingAi(false);
+      setRegenState('error');
     }
   };
 
-  const handleUpdateCriterion = (
-    idx: number,
-    field: keyof POCSuccessCriterion,
-    value: string
-  ) => {
+  const updateCriterion = (idx: number, field: keyof POCSuccessCriterion, value: string) =>
     setPlan((prev) => {
-      const updated = [...prev.success_criteria];
-      updated[idx] = { ...updated[idx], [field]: value };
-      return { ...prev, success_criteria: updated };
+      const next = [...prev.success_criteria];
+      next[idx] = { ...next[idx], [field]: value };
+      return { ...prev, success_criteria: next };
     });
-  };
 
-  const handleAddCriterion = () => {
-    setPlan((prev) => ({
-      ...prev,
-      success_criteria: [
-        ...prev.success_criteria,
-        {
-          metric: 'Custom pilot validation metric',
-          target: 'Define target threshold',
-          validation_method: 'Joint partner review',
-        },
-      ],
-    }));
-  };
-
-  const handleRemoveCriterion = (idx: number) => {
-    setPlan((prev) => ({
-      ...prev,
-      success_criteria: prev.success_criteria.filter((_, i) => i !== idx),
-    }));
-  };
-
-  const handleUpdateMilestoneAction = (idx: number, value: string) => {
+  const updateMilestone = (idx: number, value: string) =>
     setPlan((prev) => {
-      const updated = [...prev.milestones];
-      updated[idx] = { ...updated[idx], action: value };
-      return { ...prev, milestones: updated };
+      const next = [...prev.milestones];
+      next[idx] = { ...next[idx], action: value };
+      return { ...prev, milestones: next };
     });
-  };
 
-  const toggleChecklistItem = (item: string) => {
-    setCheckedItems((prev) => ({ ...prev, [item]: !prev[item] }));
-  };
-
-  const handleSave = () => {
-    onSaveDealWithPoc(
-      match,
-      plan,
-      nextActionTitle.trim() ||
-        'Schedule exploratory discovery call & confirm pilot data consent',
-      cadenceDays
-    );
-    setSaveFeedback(
-      'Saved Qualified Deal & 75-Day Proposed POC Draft to Deal Tracker!'
-    );
+  const save = () => {
+    onSaveDealWithPoc(match, plan, nextActionTitle.trim() || `Follow up with ${match.demand.buyer_name}`, cadenceDays);
+    setSaveOpen(false);
   };
 
   return (
-    <section
-      aria-label="75-Day Cross-Border POC Plan Builder"
-      className="mx-auto max-w-6xl space-y-6 pb-24"
-    >
-      {/* Top Mandatory V2 Banner */}
-      <div
-        data-testid="poc-mandatory-disclaimer-banner"
-        className="rounded-2xl border-2 border-amber-300 bg-amber-50/95 px-5 py-3.5 text-amber-950 shadow-xs"
-      >
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2.5">
-            <AlertTriangle className="h-5 w-5 shrink-0 text-amber-700" />
-            <p className="text-xs font-bold tracking-tight sm:text-sm">
-              ✨ PROPOSED 75-Day Cross-Border Pilot Plan — Draft for Discussion Only (Not Signed, Funded, or Legally Binding)
-            </p>
-          </div>
-          <span className="inline-flex w-fit items-center rounded-full bg-amber-200/80 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-950">
-            Status: {plan.status.toUpperCase()}
-          </span>
-        </div>
-      </div>
+    <section aria-label="Pilot plan" className="space-y-5 pb-28 md:pb-24">
+      <BackLink onClick={onBack}>Challenge details</BackLink>
 
-      {/* Header Bar */}
-      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-          <button
-            type="button"
-            onClick={onBack}
-            data-testid="poc-back-btn"
-            className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+      <header className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-muted">
+          <RouteRibbon from={profile.home_country} to={match.demand.country} size="sm" />
+          <span>{plan.partner_name}</span>
+        </div>
+        <h2 className="text-2xl font-bold leading-tight text-ink">{match.demand.title}</h2>
+        <div
+          data-testid="poc-mandatory-disclaimer-banner"
+          className="flex items-start gap-2 rounded-xl bg-amber-wash px-3.5 py-3 text-sm text-amber-ink"
+        >
+          <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <p>
+            <strong className="font-bold">Draft for discussion.</strong> This {plan.proposed_duration_days}-day plan is a
+            proposal. It is not signed, funded or legally binding.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <AiSourceBadge source={plan.ai_source} />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={regenerate}
+            disabled={regenState === 'loading'}
+            icon={<RefreshCw className={`h-4 w-4 ${regenState === 'loading' ? 'animate-spin' : ''}`} aria-hidden="true" />}
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span>← Back</span>
-          </button>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <ProvenanceBadge status={match.demand.data_status} />
-            <AiSourceBadge source={plan.ai_source} />
-            <button
-              type="button"
-              onClick={handleRefreshFromApi}
-              disabled={isGeneratingAi}
-              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-900 transition hover:bg-emerald-100 disabled:opacity-50"
-            >
-              <RefreshCw
-                className={`h-3.5 w-3.5 ${isGeneratingAi ? 'animate-spin' : ''}`}
-              />
-              <span>
-                {isGeneratingAi
-                  ? 'Synthesizing...'
-                  : 'Re-generate via /api/poc'}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-600">
-              <span>{plan.startup_name}</span>
-              <span>×</span>
-              <span className="text-slate-900">{plan.partner_name}</span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800">
-                {getCountryFlag(plan.country)} {plan.country}
-              </span>
-            </div>
-            <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-              {plan.title}
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-950">
-              🎯 {match.score}/100 Match Fit
+            {regenState === 'loading' ? 'Drafting' : 'Redraft with AI'}
+          </Button>
+          {regenState === 'error' ? (
+            <span role="alert" className="text-sm text-risk">
+              Could not redraft. Your edits are kept, so try again in a moment.
             </span>
-          </div>
+          ) : null}
         </div>
+      </header>
 
-        {/* Sub-Navigation Tabs */}
-        <div
-          role="tablist"
-          aria-label="Pilot Plan Sections"
-          className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-4"
-        >
-          {SUB_NAV_TABS.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                role="tab"
-                type="button"
-                aria-selected={isActive}
-                onClick={() => setActiveTab(tab.id)}
-                className={`min-h-[38px] rounded-xl px-3.5 py-2 text-xs font-semibold transition ${
-                  isActive
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+      <div className="sticky top-[61px] z-20 -mx-4 bg-paper/90 px-4 py-2 backdrop-blur-md sm:-mx-6 sm:px-6">
+        <Segmented
+          label="Plan sections"
+          value={section}
+          onChange={setSection}
+          options={[
+            { id: 'plan', label: 'Plan' },
+            { id: 'success', label: 'Success' },
+            { id: 'questions', label: 'Questions' },
+            { id: 'message', label: 'Message' },
+          ]}
+        />
       </div>
 
-      {/* 4 At-a-Glance Cards + Grant / Co-Funding Honesty Card */}
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Tile 1 */}
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700">
-              <Calendar className="h-4 w-4" />
-              <span>75 Days (Proposed Window)</span>
+      {section === 'plan' ? (
+        <div className="space-y-4">
+          <Panel className="space-y-4">
+            <Field label="Goal of the pilot">
+              <textarea
+                className={`${inputClass} min-h-[96px] py-2.5 leading-relaxed [field-sizing:content]`}
+                value={plan.objective}
+                onChange={(e) => setPlan((prev) => ({ ...prev, objective: e.target.value }))}
+              />
+            </Field>
+            <Field label="Scope and who takes part">
+              <textarea
+                className={`${inputClass} min-h-[96px] py-2.5 leading-relaxed [field-sizing:content]`}
+                value={plan.proposed_scope}
+                onChange={(e) => setPlan((prev) => ({ ...prev, proposed_scope: e.target.value }))}
+              />
+            </Field>
+            <div className="flex flex-wrap gap-2">
+              <Chip>{plan.target_users_label}</Chip>
+              <Chip>{plan.estimated_budget_note}</Chip>
             </div>
-            <p className="mt-1.5 text-lg font-bold text-slate-900">
-              4 Bounded Phases
+            <p data-testid="grant-cofunding-honesty-card" className="text-xs text-muted">
+              Grants and co-funding are not guaranteed. Check official programme dates before you budget.
             </p>
-            <p className="mt-0.5 text-xs text-slate-500">
-              Days 1–10 Scoping → Days 61–75 Pay/No-Pay Review
-            </p>
-          </div>
+          </Panel>
 
-          {/* Tile 2 */}
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 text-xs font-semibold text-indigo-700">
-              <Target className="h-4 w-4" />
-              <span>Target Trial Scope</span>
-            </div>
-            <p className="mt-1.5 text-sm font-bold text-slate-900">
-              {plan.target_users_label}
-            </p>
-            <p className="mt-0.5 text-xs text-slate-500">
-              {plan.estimated_budget_note}
-            </p>
-          </div>
-
-          {/* Tile 3 */}
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 text-xs font-semibold text-sky-700">
-              <Globe2 className="h-4 w-4" />
-              <span>{`Primary Market (${match.demand.country})`}</span>
-            </div>
-            <p className="mt-1.5 text-sm font-bold text-slate-900">
-              {profile.home_country || 'ASEAN'} → {match.demand.country}
-            </p>
-            <p className="mt-0.5 text-xs text-slate-500">
-              Sector: {match.demand.industry}
-            </p>
-          </div>
-
-          {/* Tile 4 */}
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs">
-            <div className="flex items-center gap-2 text-xs font-semibold text-violet-700">
-              <TrendingUp className="h-4 w-4" />
-              <span>Conversion Hypothesis (Post-Pilot Review)</span>
-            </div>
-            <p className="mt-1.5 text-xs font-medium leading-snug text-slate-800">
-              {plan.possible_conversion_to_paid}
-            </p>
-          </div>
-        </div>
-
-        {/* Grant / Co-Funding Honesty Card (V2-Compliant Replacement) */}
-        <div
-          data-testid="grant-cofunding-honesty-card"
-          className="rounded-2xl border border-amber-300/90 bg-amber-50/70 p-4 text-xs leading-relaxed text-amber-950 shadow-2xs"
-        >
-          <div className="flex items-start gap-2.5">
-            <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
-            <p className="font-semibold">
-              Grant &amp; Co-Funding Notice: External grants or corporate co-funding are NOT guaranteed by BridgeAI. Verify official programme windows before budgeting.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Editable Objective & Proposed Scope Card */}
-      <div
-        className={`rounded-2xl border bg-white p-5 shadow-xs sm:p-6 ${
-          activeTab === 'overview'
-            ? 'border-emerald-300 ring-2 ring-emerald-500/10'
-            : 'border-slate-200/90'
-        }`}
-      >
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="text-base font-bold text-slate-900">
-            Pilot Objective &amp; Proposed Scope (Editable)
-          </h2>
-          <span className="text-xs text-slate-500">
-            Inline edits persist when saved to Deal Tracker
-          </span>
-        </div>
-
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div>
-            <label
-              htmlFor="poc-objective-input"
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-600"
-            >
-              Pilot Objective
-            </label>
-            <textarea
-              id="poc-objective-input"
-              rows={3}
-              value={plan.objective}
-              onChange={(e) =>
-                setPlan((prev) => ({ ...prev, objective: e.target.value }))
-              }
-              className="mt-1.5 w-full rounded-xl border border-slate-300 bg-slate-50/50 p-3 text-sm text-slate-900 focus:border-emerald-600 focus:bg-white focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="poc-scope-input"
-              className="block text-xs font-semibold uppercase tracking-wider text-slate-600"
-            >
-              Proposed Scope &amp; Cohort Boundaries
-            </label>
-            <textarea
-              id="poc-scope-input"
-              rows={3}
-              value={plan.proposed_scope}
-              onChange={(e) =>
-                setPlan((prev) => ({ ...prev, proposed_scope: e.target.value }))
-              }
-              className="mt-1.5 w-full rounded-xl border border-slate-300 bg-slate-50/50 p-3 text-sm text-slate-900 focus:border-emerald-600 focus:bg-white focus:outline-none"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 4-Phase Timeline (Days 1–75) */}
-      <div
-        className={`rounded-2xl border bg-white p-5 shadow-xs sm:p-6 ${
-          activeTab === 'timeline' || activeTab === 'milestones'
-            ? 'border-emerald-300 ring-2 ring-emerald-500/10'
-            : 'border-slate-200/90'
-        }`}
-      >
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-base font-bold text-slate-900">
-              4-Phase Cross-Border Pilot Timeline (Days 1–75)
-            </h2>
-            <p className="text-xs text-slate-500">
-              Structured 75-day validation cadence with explicit startup, partner, and joint ownership.
-            </p>
-          </div>
-          <span className="text-xs font-semibold text-emerald-700">
-            Section 26.1 Standard Cadence
-          </span>
-        </div>
-
-        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-          {plan.milestones.map((ms, idx) => {
-            const ownerDisplay =
-              idx === 1
-                ? 'startup / partner'
-                : ms.owner;
-
-            return (
-              <div
-                key={ms.phase}
-                data-testid={`poc-phase-card-${idx + 1}`}
-                className="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50/60 p-4"
-              >
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="rounded-lg bg-slate-900 px-2.5 py-1 text-xs font-bold text-white">
-                      {ms.phase}
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-900">
-                      <Users className="h-3 w-3 text-emerald-700" />
-                      Owner: {ownerDisplay}
-                    </span>
+          <Panel>
+            <h3 className="text-base font-bold text-ink">Timeline</h3>
+            <ol className="mt-4">
+              {plan.milestones.map((ms, idx) => (
+                <li key={ms.phase} data-testid={`poc-phase-card-${idx + 1}`} className="relative flex gap-3 pb-5 last:pb-0">
+                  {idx < plan.milestones.length - 1 ? (
+                    <span aria-hidden="true" className="absolute bottom-0 left-[13px] top-7 w-0.5 bg-line" />
+                  ) : null}
+                  <span className="tabular relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-xs font-bold text-white">
+                    {idx + 1}
+                  </span>
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                      <span className="text-[15px] font-bold text-ink">
+                        {ms.phase.replace(/^Phase \d+:\s*/, '').replace(/\s*\(Days.*\)$/, '')}
+                      </span>
+                      <span className="text-xs font-semibold text-muted">
+                        {ms.window_label}, {OWNER_LABEL[ms.owner]}
+                      </span>
+                    </div>
+                    <textarea
+                      aria-label={`What happens in ${ms.window_label}`}
+                      className={`${inputClass} min-h-[72px] py-2 text-sm leading-relaxed [field-sizing:content]`}
+                      value={ms.action}
+                      onChange={(e) => updateMilestone(idx, e.target.value)}
+                    />
+                    {ms.deliverables.length > 0 ? (
+                      <ul className="space-y-1 text-sm text-muted">
+                        {ms.deliverables.map((d) => (
+                          <li key={d} className="flex items-start gap-2">
+                            <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-jade" aria-hidden="true" />
+                            {d}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                   </div>
+                </li>
+              ))}
+            </ol>
+          </Panel>
 
-                  <textarea
-                    rows={2}
-                    value={ms.action}
-                    aria-label={`Action for ${ms.phase}`}
-                    onChange={(e) =>
-                      handleUpdateMilestoneAction(idx, e.target.value)
+          <Panel>
+            <h3 className="text-base font-bold text-ink">If it works</h3>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">{plan.possible_conversion_to_paid}</p>
+          </Panel>
+        </div>
+      ) : null}
+
+      {section === 'success' ? (
+        <Panel className="space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base font-bold text-ink">How you will measure success</h3>
+              <p className="text-sm text-muted">Agree these with the partner before the pilot starts.</p>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={<Plus className="h-4 w-4" aria-hidden="true" />}
+              onClick={() =>
+                setPlan((prev) => ({
+                  ...prev,
+                  success_criteria: [...prev.success_criteria, { metric: '', target: '', validation_method: '' }],
+                }))
+              }
+            >
+              Add
+            </Button>
+          </div>
+          <ul className="space-y-3">
+            {plan.success_criteria.map((c, idx) => (
+              <li key={idx} className="space-y-2 rounded-xl border border-line p-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    aria-label={`Measure ${idx + 1}`}
+                    placeholder="What you will measure"
+                    className={`${inputClass} font-semibold`}
+                    value={c.metric}
+                    onChange={(e) => updateCriterion(idx, 'metric', e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    aria-label={`Remove measure ${idx + 1}`}
+                    onClick={() =>
+                      setPlan((prev) => ({ ...prev, success_criteria: prev.success_criteria.filter((_, i) => i !== idx) }))
                     }
-                    className="w-full rounded-lg border border-slate-200 bg-white p-2.5 text-xs leading-relaxed text-slate-800 focus:border-emerald-600 focus:outline-none"
+                    className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-risk-wash hover:text-risk cursor-pointer"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <input
+                    aria-label={`Target for measure ${idx + 1}`}
+                    placeholder="Target"
+                    className={`${inputClass} text-sm`}
+                    value={c.target}
+                    onChange={(e) => updateCriterion(idx, 'target', e.target.value)}
+                  />
+                  <input
+                    aria-label={`How measure ${idx + 1} is checked`}
+                    placeholder="How it is checked"
+                    className={`${inputClass} text-sm`}
+                    value={c.validation_method}
+                    onChange={(e) => updateCriterion(idx, 'validation_method', e.target.value)}
                   />
                 </div>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      ) : null}
 
-                {ms.deliverables.length > 0 && (
-                  <div className="mt-3 border-t border-slate-200/80 pt-2.5">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                      Deliverables:
-                    </span>
-                    <ul className="mt-1 space-y-1 text-xs text-slate-700">
-                      {ms.deliverables.map((deliv, dIdx) => (
-                        <li key={dIdx} className="flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
-                          <span>{deliv}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Middle / Bottom Grid: Success Criteria Table + Data, IP & Liability Discussion Checklist */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Success Criteria Table (7 cols) */}
-        <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs sm:p-6 lg:col-span-7">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">
-                Success Criteria &amp; Validation Thresholds
-              </h2>
-              <p className="text-xs text-slate-500">
-                Editable quantitative gates used in Phase 4 (Days 61–75) Pay/No-Pay review.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleAddCriterion}
-              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Add Metric</span>
-            </button>
-          </div>
-
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full border-collapse text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="py-2.5 pr-3">Metric</th>
-                  <th className="py-2.5 px-3">Proposed Target</th>
-                  <th className="py-2.5 px-3">Validation Method</th>
-                  <th className="py-2.5 pl-2 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {plan.success_criteria.map((crit, idx) => (
-                  <tr key={idx} className="align-top">
-                    <td className="py-2.5 pr-2">
-                      <input
-                        type="text"
-                        value={crit.metric}
-                        aria-label={`Metric ${idx + 1}`}
-                        onChange={(e) =>
-                          handleUpdateCriterion(idx, 'metric', e.target.value)
-                        }
-                        className="w-full rounded-lg border border-slate-200 bg-slate-50/70 px-2.5 py-1.5 text-xs font-semibold text-slate-900 focus:border-emerald-600 focus:bg-white focus:outline-none"
-                      />
-                    </td>
-                    <td className="py-2.5 px-2">
-                      <input
-                        type="text"
-                        value={crit.target}
-                        aria-label={`Proposed Target ${idx + 1}`}
-                        onChange={(e) =>
-                          handleUpdateCriterion(idx, 'target', e.target.value)
-                        }
-                        className="w-full rounded-lg border border-slate-200 bg-slate-50/70 px-2.5 py-1.5 text-xs text-slate-800 focus:border-emerald-600 focus:bg-white focus:outline-none"
-                      />
-                    </td>
-                    <td className="py-2.5 px-2">
-                      <input
-                        type="text"
-                        value={crit.validation_method}
-                        aria-label={`Validation Method ${idx + 1}`}
-                        onChange={(e) =>
-                          handleUpdateCriterion(
-                            idx,
-                            'validation_method',
-                            e.target.value
-                          )
-                        }
-                        className="w-full rounded-lg border border-slate-200 bg-slate-50/70 px-2.5 py-1.5 text-xs text-slate-700 focus:border-emerald-600 focus:bg-white focus:outline-none"
-                      />
-                    </td>
-                    <td className="py-2.5 pl-2 text-right">
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveCriterion(idx)}
-                        aria-label={`Remove metric ${idx + 1}`}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Data, IP & Liability Discussion Checklist (5 cols) */}
-        <div
-          className={`rounded-2xl border bg-white p-5 shadow-xs sm:p-6 lg:col-span-5 ${
-            activeTab === 'checklist'
-              ? 'border-emerald-300 ring-2 ring-emerald-500/10'
-              : 'border-slate-200/90'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <CheckSquare className="h-4 w-4 text-indigo-600" />
-            <h2 className="text-base font-bold text-slate-900">
-              Questions to Resolve Before Starting Pilot
-            </h2>
-          </div>
-          <p className="mt-1 text-xs text-slate-500">
-            Rule #13 Governance: Cross-border IP, data consent, and field liability items framed as discussion checkpoints (never pre-signed legal claims).
-          </p>
-
-          <div className="mt-4 space-y-2.5">
-            {DISCUSSION_CHECKLIST_ITEMS.map((item) => {
-              const isChecked = Boolean(checkedItems[item]);
-              return (
-                <label
-                  key={item}
-                  className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-xs transition ${
-                    isChecked
-                      ? 'border-emerald-300 bg-emerald-50/60 text-emerald-950'
-                      : 'border-slate-200 bg-slate-50/60 text-slate-800 hover:bg-slate-100/70'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => toggleChecklistItem(item)}
-                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                  />
-                  <span className="font-medium leading-snug">{item}</span>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Multilingual Outreach Email Drafter (English | Bahasa Melayu | Bahasa Indonesia) */}
-      <div
-        className={`rounded-2xl border bg-white p-5 shadow-xs sm:p-6 ${
-          activeTab === 'outreach'
-            ? 'border-emerald-300 ring-2 ring-emerald-500/10'
-            : 'border-slate-200/90'
-        }`}
-      >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {section === 'questions' ? (
+        <Panel className="space-y-4">
           <div>
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-emerald-600" />
-              <h2 className="text-base font-bold text-slate-900">
-                Multilingual First-Contact Outreach Email Drafter
-              </h2>
-            </div>
-            <p className="mt-0.5 text-xs text-slate-500">
-              Respectful &le;180-word exploratory inquiry — zero fabricated personal recipient names/emails and zero implied prior agreement.
+            <h3 className="text-base font-bold text-ink">Questions to resolve before the pilot starts</h3>
+            <p className="text-sm text-muted">
+              {resolvedCount} of {OPEN_QUESTIONS.length} answered. Get legal advice where you need it; BridgeAI does not give it.
             </p>
           </div>
+          <ul className="space-y-2">
+            {OPEN_QUESTIONS.map((q) => (
+              <li key={q}>
+                <label className="flex min-h-[52px] cursor-pointer items-start gap-3 rounded-xl border border-line p-3 hover:bg-paper">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(resolved[q])}
+                    onChange={() => setResolved((prev) => ({ ...prev, [q]: !prev[q] }))}
+                    className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--color-jade)]"
+                  />
+                  <span className={`text-sm leading-snug ${resolved[q] ? 'text-muted line-through' : 'text-ink'}`}>{q}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      ) : null}
 
-          {/* Language Switcher Pills & Kokoro Multilingual TTS */}
-          <div className="flex flex-wrap items-center gap-2">
-            <KokoroTtsButton
-              label={`🔊 Read ${selectedLang} Draft (Kokoro TTS)`}
-              lang={
-                selectedLang === 'Bahasa Melayu'
-                  ? 'ms-MY'
-                  : selectedLang === 'Bahasa Indonesia'
-                  ? 'id-ID'
-                  : 'en-US'
-              }
-              showVoiceSelector
-              text={`${plan.outreach_email.subject}. ${plan.outreach_email.body}`}
-            />
-            {(
-              ['English', 'Bahasa Melayu', 'Bahasa Indonesia'] as OutreachLanguage[]
-            ).map((lang) => {
-              const active = selectedLang === lang;
-              return (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => handleLanguageSwitch(lang)}
-                  data-testid={`outreach-lang-${lang}`}
-                  className={`min-h-[38px] rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
-                    active
-                      ? 'bg-emerald-700 text-white shadow-xs'
-                      : 'border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  {lang}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="mt-4 space-y-3">
+      {section === 'message' ? (
+        <Panel className="space-y-4">
           <div>
-            <label
-              htmlFor="outreach-subject-input"
-              className="block text-xs font-semibold text-slate-600"
-            >
-              Subject Line ({selectedLang})
-            </label>
+            <h3 className="text-base font-bold text-ink">First message to {plan.partner_name}</h3>
+            <p className="text-sm text-muted">Short and non-binding. Edit it, then paste it into your own email.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(['English', 'Bahasa Melayu', 'Bahasa Indonesia'] as OutreachLanguage[]).map((l) => (
+              <button
+                key={l}
+                type="button"
+                aria-pressed={lang === l}
+                onClick={() => switchLanguage(l)}
+                data-testid={`outreach-lang-${l}`}
+                className={`min-h-[40px] rounded-full px-4 text-sm font-semibold cursor-pointer ${
+                  lang === l ? 'bg-ink text-white' : 'bg-paper text-ink hover:bg-ink/10'
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+          <Field label="Subject">
             <input
-              id="outreach-subject-input"
-              type="text"
+              className={inputClass}
               value={plan.outreach_email.subject}
               onChange={(e) =>
-                setPlan((prev) => ({
-                  ...prev,
-                  outreach_email: {
-                    ...prev.outreach_email,
-                    subject: e.target.value,
-                  },
-                }))
+                setPlan((prev) => ({ ...prev, outreach_email: { ...prev.outreach_email, subject: e.target.value } }))
               }
-              className="mt-1 min-h-[42px] w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-sm font-medium text-slate-900 focus:border-emerald-600 focus:bg-white focus:outline-none"
             />
-          </div>
-
-          <div>
-            <label
-              htmlFor="outreach-body-input"
-              className="block text-xs font-semibold text-slate-600"
-            >
-              Email Body (&le;180 words)
-            </label>
+          </Field>
+          <Field label="Message" hint={`${wordCount} words. Keep it under 180.`}>
             <textarea
-              id="outreach-body-input"
-              rows={6}
+              className={`${inputClass} min-h-[220px] py-2.5 leading-relaxed`}
               value={plan.outreach_email.body}
               onChange={(e) =>
-                setPlan((prev) => ({
-                  ...prev,
-                  outreach_email: {
-                    ...prev.outreach_email,
-                    body: e.target.value,
-                  },
-                }))
+                setPlan((prev) => ({ ...prev, outreach_email: { ...prev.outreach_email, body: e.target.value } }))
               }
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-slate-50/50 p-3.5 text-sm leading-relaxed text-slate-800 focus:border-emerald-600 focus:bg-white focus:outline-none"
             />
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-            <button
-              type="button"
-              onClick={handleCopyOutreach}
+          </Field>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={copyMessage}
               data-testid="copy-outreach-draft-btn"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-800 shadow-2xs transition hover:bg-slate-50"
+              icon={
+                copied ? <Check className="h-4 w-4 text-jade" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />
+              }
             >
-              {copyToast ? (
-                <Check className="h-4 w-4 text-emerald-600" />
-              ) : (
-                <Copy className="h-4 w-4 text-slate-600" />
-              )}
-              <span>📋 Copy Outreach Draft</span>
-            </button>
-
-            {copyToast && (
-              <div
-                role="status"
-                data-testid="copy-outreach-toast"
-                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-900"
-              >
-                {copyToast}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Action Bar */}
-      <div className="sticky bottom-4 z-20 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur-md sm:p-5">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-end">
-          {/* Next-Action Task Input */}
-          <div className="lg:col-span-5">
-            <label
-              htmlFor="next-action-task-input"
-              className="block text-xs font-semibold text-slate-700"
-            >
-              Next-Action Follow-Up Task
-            </label>
-            <input
-              id="next-action-task-input"
-              type="text"
-              value={nextActionTitle}
-              onChange={(e) => setNextActionTitle(e.target.value)}
-              className="mt-1 min-h-[44px] w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 focus:border-emerald-600 focus:outline-none"
+              {copied ? 'Copied' : 'Copy message'}
+            </Button>
+            <KokoroTtsButton
+              label="Listen"
+              lang={LANG_CODE[lang]}
+              text={`${plan.outreach_email.subject}. ${plan.outreach_email.body}`}
+              size="md"
             />
           </div>
+          {copied ? (
+            <p role="status" data-testid="copy-outreach-toast" className="text-sm text-muted">
+              Copied. This does not mark the deal as contacted. Update the stage yourself once you send it.
+            </p>
+          ) : null}
+        </Panel>
+      ) : null}
 
-          {/* Check-in Cadence Selector (30 Days | 90 Days | 180 Days) */}
-          <div className="lg:col-span-3">
-            <span className="block text-xs font-semibold text-slate-700">
-              Follow-Up Check-In Cadence
-            </span>
-            <div className="mt-1 flex gap-1.5">
-              {([30, 90, 180] as const).map((days) => {
-                const active = cadenceDays === days;
-                return (
-                  <button
-                    key={days}
-                    type="button"
-                    onClick={() => setCadenceDays(days)}
-                    className={`min-h-[44px] flex-1 rounded-xl px-2.5 py-2 text-xs font-semibold transition ${
-                      active
-                        ? 'bg-slate-900 text-white shadow-2xs'
-                        : 'border border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                    }`}
-                  >
-                    {`${days} Days`}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+      <div className="fixed inset-x-0 bottom-[60px] z-30 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur-md md:bottom-0 md:left-60">
+        <div className="mx-auto max-w-5xl sm:px-2">
+          <Button block size="lg" variant="jade" onClick={() => setSaveOpen(true)} data-testid="save-deal-with-poc-btn">
+            Save plan to deals
+          </Button>
+        </div>
+      </div>
 
-          {/* Primary Save CTA */}
-          <div className="lg:col-span-4">
-            <button
-              type="button"
-              onClick={handleSave}
-              data-testid="save-deal-with-poc-btn"
-              className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
-            >
-              <Save className="h-4 w-4 shrink-0" />
-              <span>💾 Save Qualified Deal &amp; 75-Day POC Draft to Deal Tracker →</span>
-            </button>
+      <Sheet
+        open={saveOpen}
+        onClose={() => setSaveOpen(false)}
+        title="Save plan to deals"
+        description={`${plan.partner_name} will be added to your deals with a reminder. Nothing is sent to them.`}
+        footer={
+          <Button block size="lg" variant="jade" onClick={save}>
+            Save plan
+          </Button>
+        }
+      >
+        <div className="space-y-4">
+          <Field label="Your next step">
+            <input className={inputClass} value={nextActionTitle} onChange={(e) => setNextActionTitle(e.target.value)} />
+          </Field>
+          <div className="space-y-1.5">
+            <span className="block text-sm font-semibold text-ink">Remind me in</span>
+            <Segmented
+              label="Reminder"
+              value={String(cadenceDays) as '30' | '90' | '180'}
+              onChange={(v) => setCadenceDays(Number(v) as 30 | 90 | 180)}
+              options={[
+                { id: '30', label: '30 days' },
+                { id: '90', label: '90 days' },
+                { id: '180', label: '180 days' },
+              ]}
+            />
           </div>
         </div>
-
-        {saveFeedback && (
-          <div
-            role="status"
-            className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-900"
-          >
-            {saveFeedback}
-          </div>
-        )}
-      </div>
+      </Sheet>
     </section>
   );
 }

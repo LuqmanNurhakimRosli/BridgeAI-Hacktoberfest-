@@ -89,12 +89,6 @@ export const DEAL_STATE_LABELS: Record<DealState, string> = {
   on_hold: 'On Hold',
 };
 
-export const DEAL_TRACK_LABELS: Record<DealTrack, string> = {
-  commercial_poc: 'Commercial POC',
-  investment: 'Investment',
-  market_entry: 'Market Entry',
-};
-
 export function getAllowedNextStates(
   track: DealTrack,
   current: DealState
@@ -115,30 +109,4 @@ export function canTransitionDealState(
 
 export function getDealStateLabel(state: DealState): string {
   return DEAL_STATE_LABELS[state] || state;
-}
-
-export function getDealStateBadgeColor(state: DealState): string {
-  switch (state) {
-    case 'paid':
-    case 'contract_signed':
-      return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-    case 'poc_running':
-    case 'poc_completed':
-    case 'agreement_signed':
-      return 'bg-teal-100 text-teal-800 border-teal-200';
-    case 'proposal_shared':
-    case 'negotiation':
-    case 'first_meeting':
-      return 'bg-violet-100 text-violet-800 border-violet-200';
-    case 'introduction_requested':
-    case 'qualified':
-    case 'identified':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'on_hold':
-      return 'bg-amber-100 text-amber-800 border-amber-200';
-    case 'closed_lost':
-      return 'bg-rose-100 text-rose-800 border-rose-200';
-    default:
-      return 'bg-slate-100 text-slate-800 border-slate-200';
-  }
 }

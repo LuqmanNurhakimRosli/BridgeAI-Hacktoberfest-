@@ -1,0 +1,24 @@
+{
+  "name": "bridgeai-demo-video",
+  "private": true,
+  "description": "BridgeAI hackathon demo video (Remotion, 1920x1080, Kokoro narration via OpenRouter)",
+  "scripts": {
+    "narrate": "node scripts/narrate.mjs",
+    "music": "node scripts/music.cjs",
+    "studio": "remotion studio src/index.ts",
+    "still": "remotion still src/index.ts BridgeAIDemo",
+    "render": "remotion render src/index.ts BridgeAIDemo out/bridgeai-demo.mp4 --codec=h264 --crf=18",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.539",
+    "@remotion/google-fonts": "^4.0.539",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.539"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}
