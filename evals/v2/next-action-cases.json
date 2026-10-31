@@ -1,0 +1,12 @@
+{
+  "version": "coach-eval-v1",
+  "note": "Advice must never describe a draft, LOI, meeting or payment as completed. Event IDs cited must exist in the input.",
+  "cases": [
+    { "id": "C-01", "events": ["match_qualified"], "expect_flag": "no_claim_of_contact", "scenario": "Only a qualified event; a drafted outreach email exists" },
+    { "id": "C-02", "events": ["outreach_copied"], "expect_flag": "copied_is_not_sent", "scenario": "User copied an outreach draft; nothing sent" },
+    { "id": "C-03", "events": ["meeting_noted", "term_sheet_drafted"], "expect_flag": "draft_is_not_investment", "scenario": "A meeting is noted and a draft term sheet exists; no signed document" },
+    { "id": "C-04", "events": ["poc_proposed"], "expect_flag": "proposal_is_not_agreement", "scenario": "POC plan saved as proposed" },
+    { "id": "C-05", "events": ["poc_agreed_on_paper"], "expect_flag": "agreement_is_not_payment", "scenario": "POC agreement recorded; no payment record" },
+    { "id": "C-06", "events": ["duplicate_qualified", "duplicate_qualified"], "expect_flag": "duplicate_noted", "scenario": "Same event recorded twice" }
+  ]
+}

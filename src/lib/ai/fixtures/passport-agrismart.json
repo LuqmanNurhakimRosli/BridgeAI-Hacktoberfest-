@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "source": "fixture",
+    "model": "google/gemma-4-26b-a4b-it",
+    "prompt_version": "passport-v3",
+    "note": "Hand-written fixture in the expected shape. Not a live model output."
+  },
+  "profile": {
+    "startup_name": "AgriSmart",
+    "description": "Phone-based AI leaf-disease detection for farmers.",
+    "industry": "AgriTech",
+    "home_country": "Malaysia",
+    "target_country": "Indonesia",
+    "stage": "Seed",
+    "product": "Phone-based AI leaf-disease detection",
+    "primary_goal": "Pilot Partnership",
+    "needs": ["An Indonesian company with a real field-pilot problem"],
+    "missing_fields": [],
+    "confidence_notes": ["Stage 'seed-stage' stated by founder", "Target country stated by founder"]
+  }
+}

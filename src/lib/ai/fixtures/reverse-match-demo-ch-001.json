@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "source": "fixture",
+    "model": "google/gemma-4-26b-a4b-it",
+    "prompt_version": "reasoning-v1",
+    "note": "Hand-written fixture. The score is a placeholder for the backend-computed value and must be replaced by Person 2's scorer output."
+  },
+  "demand_id": "DEMO-CH-001",
+  "matches": [
+    {
+      "startup_id": "DEMO-STARTUP-001",
+      "demand_id": "DEMO-CH-001",
+      "score": 72,
+      "score_source": "backend_placeholder",
+      "fit_summary": "AgriSmart's phone-based leaf-disease detection addresses the crop disease detection requirement in the demo challenge.",
+      "evidence_for_fit": [
+        "Product description states crop disease detection on a phone",
+        "Stated target country is Indonesia"
+      ],
+      "missing_evidence": [
+        "No field-test results are provided",
+        "Offline operation is not confirmed (nice-to-have)"
+      ],
+      "constraints": [
+        "Challenge is a synthetic demo; no real buyer has confirmed interest"
+      ],
+      "suggested_next_step": "Confirm offline capability and prepare a discovery questionnaire before proposing a pilot."
+    }
+  ],
+  "data_notice": "Synthetic Demo. Scores indicate rule-based compatibility only and are not a funding or pilot probability."
+}
