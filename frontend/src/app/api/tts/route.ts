@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { readJson, route } from '@/lib/api';
+
+const KOKORO_VOICES = ['af_heart', 'af_bella', 'am_adam', 'bf_emma'] as const;
 
 const TtsRequestSchema = z.object({
   text: z.string().min(1).max(3000),
-  voice: z.string().optional().default('af_heart'),
+  voice: z.enum(KOKORO_VOICES).optional().default('af_heart'),
   speed: z.number().min(0.5).max(2.0).optional().default(1.0),
-  lang: z.string().optional().default('en-US'),
+  lang: z.string().max(16).optional().default('en-US'),
 });
 
-export type KokoroVoiceId = 'af_heart' | 'af_bella' | 'am_adam' | 'bf_emma';
+export type KokoroVoiceId = (typeof KOKORO_VOICES)[number];
 
 function hasRealApiKey(key?: string): boolean {
   return Boolean(
@@ -19,24 +22,11 @@ function hasRealApiKey(key?: string): boolean {
   );
 }
 
-export async function POST(request: Request) {
+async function handleTts(request: Request) {
+  // Validation errors (ZodError / AppError) propagate to route() for the standard envelope.
+  const { text, voice, speed, lang } = TtsRequestSchema.parse(await readJson(request));
+
   try {
-    const rawBody = await request.json();
-    const parsed = TtsRequestSchema.safeParse(rawBody);
-
-    if (!parsed.success) {
-      return NextResponse.json(
-        {
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: 'Invalid TTS request payload. Provide text (1-3000 chars).',
-          },
-        },
-        { status: 400 }
-      );
-    }
-
-    const { text, voice, speed, lang } = parsed.data;
     const configuredVoice = voice || process.env.KOKORO_DEFAULT_VOICE || 'af_heart';
     const configuredModel = process.env.KOKORO_MODEL || 'hexgrad/kokoro-82m';
 
@@ -186,3 +176,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const POST = route(handleTts, { ai: true });
